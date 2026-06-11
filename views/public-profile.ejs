@@ -5,7 +5,12 @@
       <div class="profile-avatar <%= profile.photo_url ? 'avatar-img' : '' %>"<%= profile.photo_url ? ` style="background-image:url('${profile.photo_url}')"` : '' %>><%= profile.photo_url ? '' : profile.name.charAt(0) %></div>
       <div>
         <h1><%= profile.name %></h1>
-        <% if (profile.linkedin) { %><a href="<%= profile.linkedin %>" target="_blank" rel="noopener" class="linkedin-link">in/ LinkedIn ↗</a><% } %>
+        <div class="social-links">
+          <% if (profile.linkedin) { %><a href="<%= socialUrl('linkedin', profile.linkedin) %>" target="_blank" rel="noopener" class="social-chip">in LinkedIn</a><% } %>
+          <% if (profile.instagram) { %><a href="<%= socialUrl('instagram', profile.instagram) %>" target="_blank" rel="noopener" class="social-chip">📷 Instagram</a><% } %>
+          <% if (profile.x) { %><a href="<%= socialUrl('x', profile.x) %>" target="_blank" rel="noopener" class="social-chip">𝕏</a><% } %>
+          <% if (profile.substack) { %><a href="<%= socialUrl('substack', profile.substack) %>" target="_blank" rel="noopener" class="social-chip">📰 Substack</a><% } %>
+        </div>
       </div>
     </div>
 

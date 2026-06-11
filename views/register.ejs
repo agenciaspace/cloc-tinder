@@ -32,11 +32,7 @@
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required placeholder="seu@email.com">
       </div>
-      <div class="form-group">
-        <label for="linkedin">LinkedIn <span class="req">*</span></label>
-        <input type="url" id="linkedin" name="linkedin" required placeholder="https://linkedin.com/in/seu-perfil">
-        <small class="field-hint">Obrigatório — ajuda a confirmar quem é você.</small>
-      </div>
+      <%- include('partials/social-fields', { s: {} }) %>
       <div class="form-group">
         <label for="phone">WhatsApp <span class="req">*</span></label>
         <input type="tel" id="phone" name="phone" required placeholder="(11) 99999-9999">

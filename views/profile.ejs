@@ -26,10 +26,7 @@
         <label for="name">Nome</label>
         <input type="text" id="name" name="name" value="<%= profile.name %>" required>
       </div>
-      <div class="form-group">
-        <label for="linkedin">LinkedIn <span class="req">*</span></label>
-        <input type="url" id="linkedin" name="linkedin" value="<%= profile.linkedin || '' %>" required placeholder="https://linkedin.com/in/seu-perfil">
-      </div>
+      <%- include('partials/social-fields', { s: profile }) %>
 
       <div class="form-group">
         <label for="phone">WhatsApp</label>

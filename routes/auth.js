@@ -6,6 +6,7 @@ const config = require('../config/whatsapp');
 const whatsapp = require('../services/whatsapp');
 const phone = require('../services/phone');
 const storage = require('../services/storage');
+const socials = require('../services/socials');
 
 const router = express.Router();
 
@@ -32,17 +33,6 @@ function maskPhone(raw) {
   return '•••• •••' + d.slice(-4);
 }
 
-// Valida e normaliza o link do LinkedIn. Retorna a URL ou null.
-function normalizeLinkedin(raw) {
-  let s = String(raw || '').trim();
-  if (!s) return null;
-  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
-  try {
-    const u = new URL(s);
-    if (!/(^|\.)linkedin\.com$/i.test(u.hostname)) return null;
-    return u.href;
-  } catch { return null; }
-}
 
 router.get('/register', (req, res) => {
   if (req.session.user) return res.redirect('/dashboard');
@@ -61,12 +51,15 @@ router.post('/register', uploadPhoto, async (req, res) => {
     return res.redirect('/register');
   }
 
-  // LinkedIn é obrigatório.
-  const linkedin = normalizeLinkedin(req.body.linkedin);
+  // LinkedIn é obrigatório (handle, ex: @seu-usuario).
+  const linkedin = socials.cleanHandle(req.body.linkedin);
   if (!linkedin) {
-    req.session.error = 'Informe um link válido do seu LinkedIn (ex: linkedin.com/in/seu-perfil).';
+    req.session.error = 'Informe seu usuário do LinkedIn (ex: @seu-usuario).';
     return res.redirect('/register');
   }
+  const instagram = socials.cleanHandle(req.body.instagram);
+  const x = socials.cleanHandle(req.body.x);
+  const substack = socials.cleanHandle(req.body.substack);
 
   if (await db.findUserByEmail(email)) {
     req.session.error = 'Este email já está cadastrado.';
@@ -127,6 +120,9 @@ router.post('/register', uploadPhoto, async (req, res) => {
     email,
     phoneRaw,
     linkedin,
+    instagram,
+    x,
+    substack,
     photoUrl,
     passwordHash: bcrypt.hashSync(password, 10),
     codeHash: bcrypt.hashSync(code, 8),
@@ -177,7 +173,10 @@ router.post('/register/verify', async (req, res) => {
   // Código correto — cria a conta de verdade e loga.
   const userId = await db.createUser(
     pending.name, pending.email, pending.passwordHash, pending.phoneRaw, '', [], [],
-    { linkedin: pending.linkedin, photoUrl: pending.photoUrl }
+    {
+      linkedin: pending.linkedin, instagram: pending.instagram, x: pending.x,
+      substack: pending.substack, photoUrl: pending.photoUrl,
+    }
   );
   req.session.user = { id: userId, name: pending.name, email: pending.email };
   delete req.session.pendingReg;

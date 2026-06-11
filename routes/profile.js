@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const db = require('../models/db');
 const storage = require('../services/storage');
+const socials = require('../services/socials');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -12,12 +13,6 @@ function uploadPhoto(req, res, next) {
     if (err) { req.session.error = 'A foto deve ter no máximo 5MB e ser uma imagem.'; return res.redirect('/profile/edit'); }
     next();
   });
-}
-function normalizeLinkedin(raw) {
-  let s = String(raw || '').trim();
-  if (!s) return null;
-  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
-  try { const u = new URL(s); if (!/(^|\.)linkedin\.com$/i.test(u.hostname)) return null; return u.href; } catch { return null; }
 }
 
 const CATEGORIES = [
@@ -38,9 +33,9 @@ router.post('/profile', requireAuth, uploadPhoto, async (req, res, next) => {
   try {
     const { name, phone, bio, skills, help_categories, can_help, needs_help } = req.body;
 
-    const linkedin = normalizeLinkedin(req.body.linkedin);
+    const linkedin = socials.cleanHandle(req.body.linkedin);
     if (!linkedin) {
-      req.session.error = 'Informe um link válido do seu LinkedIn (ex: linkedin.com/in/seu-perfil).';
+      req.session.error = 'Informe seu usuário do LinkedIn (ex: @seu-usuario).';
       return res.redirect('/profile/edit');
     }
 
@@ -52,6 +47,9 @@ router.post('/profile', requireAuth, uploadPhoto, async (req, res, next) => {
       phone: phone || '',
       bio: bio || '',
       linkedin,
+      instagram: socials.cleanHandle(req.body.instagram),
+      x: socials.cleanHandle(req.body.x),
+      substack: socials.cleanHandle(req.body.substack),
       skills: skillsList,
       help_categories: Array.isArray(categoriesList) ? categoriesList : [categoriesList],
       available: 1,

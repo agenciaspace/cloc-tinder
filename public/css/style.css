@@ -524,6 +524,37 @@ a { color: var(--coral-deep); }
 .photo-btn:hover { border-color: #E2D2BE; transform: translateY(-1px); }
 .photo-name { font-size: 12.5px; color: var(--ink-faint); }
 
+/* inputs de redes sociais (handle com prefixo @) */
+.handle-input {
+  display: flex; align-items: center;
+  border: 1.5px solid var(--line); border-radius: 13px;
+  background: #FCFAF6; overflow: hidden;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.handle-input:focus-within { border-color: var(--coral); background: #fff; box-shadow: 0 0 0 4px rgba(255,91,78,.13); }
+.handle-prefix {
+  padding: 0 4px 0 14px; font-size: 13.5px; font-weight: 700;
+  color: var(--ink-faint); white-space: nowrap; flex-shrink: 0;
+}
+.handle-input input {
+  flex: 1; border: none !important; background: transparent !important;
+  box-shadow: none !important; padding: 12px 14px 12px 4px; min-width: 0;
+}
+.handle-input input:focus { box-shadow: none !important; }
+.socials-grid { display: flex; flex-direction: column; gap: 8px; }
+.opt { color: var(--ink-faint); font-weight: 500; font-size: 12.5px; }
+
+/* links de redes no perfil público */
+.social-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.social-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 999px;
+  background: var(--paper-2); color: var(--ink); text-decoration: none;
+  font-weight: 700; font-size: 13px; border: 1px solid var(--line);
+  transition: transform .15s, border-color .15s;
+}
+.social-chip:hover { transform: translateY(-2px); border-color: #E2D2BE; }
+
 /* avatar com imagem (reaproveita .profile-avatar / .helper-avatar / .mini-avatar) */
 .avatar-img { background-size: cover !important; background-position: center !important; color: transparent !important; }
 

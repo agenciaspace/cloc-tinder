@@ -38,6 +38,9 @@ async function createUser(name, email, password, phoneRaw, bio, skills, helpCate
     skills: skills || [], help_categories: helpCategories || [],
     phone_e164: e164,
     linkedin: extra.linkedin || '',
+    instagram: extra.instagram || '',
+    x: extra.x || '',
+    substack: extra.substack || '',
     photo_url: extra.photoUrl || '',
   }).select('id').single());
   return data.id;
@@ -52,7 +55,7 @@ async function findUserById(id) {
 }
 
 async function updateUser(id, fields) {
-  const allowed = ['name', 'phone', 'bio', 'skills', 'help_categories', 'available', 'can_help', 'needs_help', 'linkedin', 'photo_url'];
+  const allowed = ['name', 'phone', 'bio', 'skills', 'help_categories', 'available', 'can_help', 'needs_help', 'linkedin', 'instagram', 'x', 'substack', 'photo_url'];
   const upd = {};
   for (const key of allowed) if (fields[key] !== undefined) upd[key] = fields[key];
   if (Object.keys(upd).length === 0) return;

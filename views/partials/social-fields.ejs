@@ -1,0 +1,26 @@
+<div class="form-group">
+  <label for="linkedin">LinkedIn <span class="req">*</span></label>
+  <div class="handle-input">
+    <span class="handle-prefix">in/ @</span>
+    <input type="text" id="linkedin" name="linkedin" value="<%= (typeof s !== 'undefined' && s.linkedin) || '' %>" required placeholder="seu-usuario" autocapitalize="none" autocorrect="off">
+  </div>
+  <small class="field-hint">Só o seu usuário (o que vem depois de <strong>/in/</strong> no seu perfil).</small>
+</div>
+
+<div class="form-group">
+  <label>Outras redes <span class="opt">(opcional)</span></label>
+  <div class="socials-grid">
+    <div class="handle-input">
+      <span class="handle-prefix">Instagram @</span>
+      <input type="text" name="instagram" value="<%= (typeof s !== 'undefined' && s.instagram) || '' %>" placeholder="usuario" autocapitalize="none" autocorrect="off">
+    </div>
+    <div class="handle-input">
+      <span class="handle-prefix">X @</span>
+      <input type="text" name="x" value="<%= (typeof s !== 'undefined' && s.x) || '' %>" placeholder="usuario" autocapitalize="none" autocorrect="off">
+    </div>
+    <div class="handle-input">
+      <span class="handle-prefix">Substack @</span>
+      <input type="text" name="substack" value="<%= (typeof s !== 'undefined' && s.substack) || '' %>" placeholder="usuario" autocapitalize="none" autocorrect="off">
+    </div>
+  </div>
+</div>
