@@ -29,16 +29,6 @@ const env = process.env;
 const num = (v, d) => (v !== undefined && v !== '' && !Number.isNaN(Number(v)) ? Number(v) : d);
 
 const config = {
-  // Supabase (banco)
-  supabase: {
-    url: (env.SUPABASE_URL || '').replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, ''),
-    serviceKey: env.SUPABASE_SERVICE_ROLE_KEY || '',
-    anonKey: env.SUPABASE_ANON_KEY || '',
-  },
-  // Sessão e cron
-  sessionSecret: env.SESSION_SECRET || 'cloc-tinder-dev-secret',
-  cronSecret: env.CRON_SECRET || '',
-
   // uazapi
   baseUrl: (env.UAZAPI_BASE_URL || '').replace(/\/+$/, ''),
   token: env.UAZAPI_TOKEN || '',
@@ -64,6 +54,17 @@ const config = {
     .split(',')
     .map(p => phone.canonical(p))
     .filter(Boolean),
+
+  // Supabase (banco via REST). O servidor usa a service_role.
+  supabase: {
+    url: (env.SUPABASE_URL || '').replace(/\/+$/, ''),
+    serviceKey: env.SUPABASE_SERVICE_ROLE_KEY || '',
+    anonKey: env.SUPABASE_ANON_KEY || '',
+  },
+
+  // Sessão (cookie assinado) e proteção do endpoint de cron.
+  sessionSecret: env.SESSION_SECRET || 'cloc-tinder-dev-secret-troque-em-producao',
+  cronSecret: env.CRON_SECRET || '',
 };
 
 // A integração só está "ativa" quando temos os dados mínimos do uazapi.

@@ -2,13 +2,13 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.js",
+      "src": "server.js",
       "use": "@vercel/node",
-      "config": { "includeFiles": ["views/**", "public/**", "config/**", "models/**", "routes/**", "services/**"] }
+      "config": { "includeFiles": ["views/**", "public/**"] }
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "api/index.js" }
+    { "src": "/(.*)", "dest": "/server.js" }
   ],
   "crons": [
     { "path": "/api/cron/sync", "schedule": "0 */6 * * *" }

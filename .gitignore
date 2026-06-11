@@ -1,17 +1,17 @@
-# Segredos — NUNCA commitar
-.env
-.env.*
-!.env.example
-
 # Dependências
 node_modules/
 
-# Banco local antigo (sql.js) — não usado mais
+# Variáveis de ambiente (NUNCA comitar — contém segredos)
+.env
+.env.local
+.env.*.local
+
+# Banco local (sql.js) — legado, não usado em produção
 data/*.db
 data/
 
-# Logs e temporários
+# Artefatos
+.playwright-cli/
 *.log
 .DS_Store
 .vercel
-.playwright-cli/
