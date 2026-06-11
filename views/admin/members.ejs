@@ -1,0 +1,61 @@
+<%- include('../partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<%
+  function fmtPhone(p) {
+    const d = String(p || '').replace(/\D/g, '');
+    if (d.length < 12) return p;
+    const cc = d.slice(0, 2), ddd = d.slice(2, 4), rest = d.slice(4);
+    const num = rest.length === 9
+      ? rest.replace(/(\d{5})(\d{4})/, '$1-$2')
+      : rest.replace(/(\d{4})(\d{4})/, '$1-$2');
+    return `+${cc} (${ddd}) ${num}`;
+  }
+%>
+
+<div class="page-header">
+  <div>
+    <h1>Membros do grupo</h1>
+    <p class="subtitle"><%= wa.groupName %></p>
+  </div>
+  <div class="dashboard-actions">
+    <form method="POST" action="/admin/sync-whatsapp"><button class="btn btn-sm btn-secondary">↻ Sincronizar</button></form>
+    <a href="/admin" class="btn btn-sm btn-secondary">← Painel</a>
+  </div>
+</div>
+
+<div class="stat-grid stat-grid-3">
+  <div class="stat-card"><span class="stat-num"><%= total %></span><span class="stat-label">No grupo</span></div>
+  <div class="stat-card stat-card-accent"><span class="stat-num"><%= registered %></span><span class="stat-label">Registrados</span></div>
+  <div class="stat-card"><span class="stat-num"><%= pending %></span><span class="stat-label">Ainda não registrados</span></div>
+</div>
+
+<div class="table-wrap" style="margin-top:22px">
+  <table class="data-table">
+    <thead>
+      <tr><th>Membro</th><th>WhatsApp</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <% list.forEach(m => { %>
+        <tr class="<%= m.registered ? '' : 'row-pending' %>">
+          <td>
+            <div class="cell-user">
+              <span class="mini-avatar <%= m.photo_url ? 'avatar-img' : '' %>"<%= m.photo_url ? ` style=\"background-image:url('${m.photo_url}')\"` : '' %>><%= m.photo_url ? '' : (m.registered ? (m.name||'?').charAt(0) : '·') %></span>
+              <div>
+                <strong><%= m.registered ? m.name : 'Ainda não registrado' %></strong>
+                <% if (m.registered) { %><small><%= m.email %></small><% } %>
+              </div>
+            </div>
+          </td>
+          <td><small><%= fmtPhone(m.phone) %></small></td>
+          <td>
+            <% if (m.registered) { %><span class="tag tag-open">registrado</span><% } else { %><span class="tag tag-gray">não registrado</span><% } %>
+            <% if (m.groupAdmin) { %><span class="tag tag-tecnologia tag-sm">admin do grupo</span><% } %>
+            <% if (m.is_banned) { %><span class="tag tag-rejected tag-sm">banido</span><% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/footer') %>

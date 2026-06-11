@@ -1,11 +1,29 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
 const db = require('../models/db');
 const config = require('../config/whatsapp');
 const whatsapp = require('../services/whatsapp');
 const phone = require('../services/phone');
+const storage = require('../services/storage');
 
 const router = express.Router();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+// Wrapper que trata erros do multer com mensagem amigável.
+function uploadPhoto(req, res, next) {
+  upload.single('photo')(req, res, (err) => {
+    if (err) {
+      req.session.error = 'A foto deve ter no máximo 5MB e ser uma imagem.';
+      return res.redirect('/register');
+    }
+    next();
+  });
+}
 
 // Mascara o número, mostrando só os 4 últimos dígitos.
 function maskPhone(raw) {
@@ -14,12 +32,24 @@ function maskPhone(raw) {
   return '•••• •••' + d.slice(-4);
 }
 
+// Valida e normaliza o link do LinkedIn. Retorna a URL ou null.
+function normalizeLinkedin(raw) {
+  let s = String(raw || '').trim();
+  if (!s) return null;
+  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+  try {
+    const u = new URL(s);
+    if (!/(^|\.)linkedin\.com$/i.test(u.hostname)) return null;
+    return u.href;
+  } catch { return null; }
+}
+
 router.get('/register', (req, res) => {
   if (req.session.user) return res.redirect('/dashboard');
   res.render('register');
 });
 
-router.post('/register', async (req, res) => {
+router.post('/register', uploadPhoto, async (req, res) => {
   const { name, email, password, confirmPassword, phone: phoneRaw } = req.body;
 
   if (!name || !email || !password || !phoneRaw) {
@@ -30,6 +60,14 @@ router.post('/register', async (req, res) => {
     req.session.error = 'Senhas não conferem.';
     return res.redirect('/register');
   }
+
+  // LinkedIn é obrigatório.
+  const linkedin = normalizeLinkedin(req.body.linkedin);
+  if (!linkedin) {
+    req.session.error = 'Informe um link válido do seu LinkedIn (ex: linkedin.com/in/seu-perfil).';
+    return res.redirect('/register');
+  }
+
   if (await db.findUserByEmail(email)) {
     req.session.error = 'Este email já está cadastrado.';
     return res.redirect('/register');
@@ -61,6 +99,18 @@ router.post('/register', async (req, res) => {
     return res.redirect('/register');
   }
 
+  // Foto (opcional) — sobe para o Storage e guardamos só a URL.
+  let photoUrl = '';
+  if (req.file) {
+    try {
+      photoUrl = await storage.uploadAvatar(req.file);
+    } catch (err) {
+      console.error('[register] falha no upload da foto:', err.message);
+      req.session.error = err.message || 'Não conseguimos enviar a foto. Tente outra imagem.';
+      return res.redirect('/register');
+    }
+  }
+
   // Gera e envia o código de verificação.
   const code = whatsapp.generateCode();
   try {
@@ -76,6 +126,8 @@ router.post('/register', async (req, res) => {
     name,
     email,
     phoneRaw,
+    linkedin,
+    photoUrl,
     passwordHash: bcrypt.hashSync(password, 10),
     codeHash: bcrypt.hashSync(code, 8),
     expiresAt: Date.now() + config.otp.ttlMinutos * 60 * 1000,
@@ -124,7 +176,8 @@ router.post('/register/verify', async (req, res) => {
 
   // Código correto — cria a conta de verdade e loga.
   const userId = await db.createUser(
-    pending.name, pending.email, pending.passwordHash, pending.phoneRaw, '', [], []
+    pending.name, pending.email, pending.passwordHash, pending.phoneRaw, '', [], [],
+    { linkedin: pending.linkedin, photoUrl: pending.photoUrl }
   );
   req.session.user = { id: userId, name: pending.name, email: pending.email };
   delete req.session.pendingReg;

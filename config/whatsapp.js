@@ -65,6 +65,13 @@ const config = {
   // Sessão (cookie assinado) e proteção do endpoint de cron.
   sessionSecret: env.SESSION_SECRET || 'cloc-tinder-dev-secret-troque-em-producao',
   cronSecret: env.CRON_SECRET || '',
+
+  // Web Push (VAPID).
+  vapid: {
+    publicKey: env.VAPID_PUBLIC_KEY || '',
+    privateKey: env.VAPID_PRIVATE_KEY || '',
+    subject: env.VAPID_SUBJECT || 'mailto:admin@example.com',
+  },
 };
 
 // A integração só está "ativa" quando temos os dados mínimos do uazapi.

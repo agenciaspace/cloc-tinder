@@ -24,6 +24,13 @@ router.get('/', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.get('/members', async (req, res, next) => {
+  try {
+    const data = await db.getGroupMembersWithStatus();
+    res.render('admin/members', data);
+  } catch (err) { next(err); }
+});
+
 router.post('/sync-whatsapp', async (req, res) => {
   const result = await whatsapp.syncGroupMembers();
   if (result.ok) req.session.success = `Lista do grupo atualizada: ${result.count} membros.`;

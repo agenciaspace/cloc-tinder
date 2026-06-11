@@ -16,10 +16,14 @@ create table if not exists users (
   can_help      int default 1,
   needs_help    int default 1,
   phone_e164    text default '',
+  linkedin      text default '',
+  photo_url     text default '',
   is_admin      int default 0,
   is_banned     int default 0,
   created_at    timestamptz default now()
 );
+-- Obs: o upload de foto usa o bucket público "avatars" do Supabase Storage
+-- (criado pela aplicação; público para leitura).
 
 create table if not exists needs (
   id              bigint generated always as identity primary key,
@@ -59,6 +63,15 @@ create table if not exists group_members (
   synced_at timestamptz default now()
 );
 
+create table if not exists push_subscriptions (
+  id         bigint generated always as identity primary key,
+  user_id    bigint not null,
+  endpoint   text unique not null,
+  keys       jsonb not null,
+  created_at timestamptz default now()
+);
+create index if not exists idx_push_user on push_subscriptions(user_id);
+
 create index if not exists idx_needs_status   on needs(status);
 create index if not exists idx_needs_requester on needs(requester_id);
 create index if not exists idx_matches_helper  on matches(helper_id);
@@ -72,3 +85,4 @@ alter table needs          enable row level security;
 alter table matches        enable row level security;
 alter table notifications  enable row level security;
 alter table group_members  enable row level security;
+alter table push_subscriptions enable row level security;

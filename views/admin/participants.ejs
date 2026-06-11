@@ -25,7 +25,7 @@
         <tr class="<%= u.is_banned ? 'row-banned' : '' %>">
           <td>
             <div class="cell-user">
-              <span class="mini-avatar"><%= (u.name || '?').charAt(0) %></span>
+              <span class="mini-avatar <%= u.photo_url ? 'avatar-img' : '' %>"<%= u.photo_url ? ` style="background-image:url('${u.photo_url}')"` : '' %>><%= u.photo_url ? '' : (u.name || '?').charAt(0) %></span>
               <div>
                 <strong><%= u.name %></strong>
                 <small><%= u.email %></small>

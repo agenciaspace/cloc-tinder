@@ -14,7 +14,16 @@
 
     <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
     <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
-    <form method="POST" action="/register">
+    <form method="POST" action="/register" enctype="multipart/form-data">
+      <div class="form-group photo-field">
+        <label for="photo">Foto de perfil</label>
+        <div class="photo-upload">
+          <span class="photo-preview" id="photoPreview">🙂</span>
+          <label class="photo-btn" for="photo">Escolher foto</label>
+          <input type="file" id="photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
+          <span class="photo-name" id="photoName">PNG, JPG ou WEBP · até 5MB</span>
+        </div>
+      </div>
       <div class="form-group">
         <label for="name">Nome completo</label>
         <input type="text" id="name" name="name" required placeholder="Seu nome">
@@ -22,6 +31,11 @@
       <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required placeholder="seu@email.com">
+      </div>
+      <div class="form-group">
+        <label for="linkedin">LinkedIn <span class="req">*</span></label>
+        <input type="url" id="linkedin" name="linkedin" required placeholder="https://linkedin.com/in/seu-perfil">
+        <small class="field-hint">Obrigatório — ajuda a confirmar quem é você.</small>
       </div>
       <div class="form-group">
         <label for="phone">WhatsApp <span class="req">*</span></label>
@@ -41,4 +55,20 @@
     <p class="auth-link">Já tem conta? <a href="/login">Entrar</a></p>
   </div>
 </div>
+<script>
+  const photoInput = document.getElementById('photo');
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    document.getElementById('photoName').textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const prev = document.getElementById('photoPreview');
+      prev.style.backgroundImage = `url(${e.target.result})`;
+      prev.classList.add('has-img');
+      prev.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
 <%- include('partials/footer') %>

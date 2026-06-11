@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../models/db');
+const push = require('../services/push');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -23,11 +24,11 @@ router.post('/matches/:needId/offer', requireAuth, async (req, res, next) => {
     }
     await db.createMatch(need.id, req.session.user.id);
     if (need.requester_id) {
-      await db.createNotification(
-        need.requester_id,
-        `${req.session.user.name} se ofereceu para ajudar com: "${need.title}"`,
-        'match'
-      );
+      const msg = `${req.session.user.name} se ofereceu para ajudar com: "${need.title}"`;
+      await db.createNotification(need.requester_id, msg, 'match');
+      await push.sendToUser(need.requester_id, {
+        title: '🤝 Alguém quer te ajudar!', body: msg, url: '/matches',
+      });
     }
     req.session.success = 'Match enviado! Você se ofereceu para ajudar.';
     res.redirect('/matches');
@@ -59,11 +60,11 @@ router.post('/matches/:id/accept', requireAuth, async (req, res, next) => {
     }
     await db.updateMatch(match.id, 'accepted');
     await db.updateNeed(need.id, { status: 'matched', helper_id: match.helper_id });
-    await db.createNotification(
-      match.helper_id,
-      `Seu match para "${need.title}" foi aceito! Entre em contato.`,
-      'success'
-    );
+    {
+      const msg = `Seu match para "${need.title}" foi aceito! Entre em contato.`;
+      await db.createNotification(match.helper_id, msg, 'success');
+      await push.sendToUser(match.helper_id, { title: '✅ Match aceito!', body: msg, url: '/matches' });
+    }
     req.session.success = 'Match aceito! Entre em contato com o voluntário.';
     res.redirect('/matches');
   } catch (err) { next(err); }
@@ -77,11 +78,11 @@ router.post('/matches/:id/reject', requireAuth, async (req, res, next) => {
       return res.redirect('/matches');
     }
     await db.updateMatch(match.id, 'rejected');
-    await db.createNotification(
-      match.helper_id,
-      `Seu match foi recusado. Não desanime, continue ajudando!`,
-      'info'
-    );
+    {
+      const msg = 'Seu match foi recusado. Não desanime, continue ajudando!';
+      await db.createNotification(match.helper_id, msg, 'info');
+      await push.sendToUser(match.helper_id, { title: 'Match recusado', body: msg, url: '/matches' });
+    }
     req.session.success = 'Match recusado.';
     res.redirect('/matches');
   } catch (err) { next(err); }

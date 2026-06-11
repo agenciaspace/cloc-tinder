@@ -57,7 +57,7 @@
         <div class="helpers-list">
           <% helpers.forEach(helper => { %>
             <div class="helper-item">
-              <div class="helper-avatar"><%= helper.name.charAt(0) %></div>
+              <div class="helper-avatar <%= helper.photo_url ? 'avatar-img' : '' %>"<%= helper.photo_url ? ` style="background-image:url('${helper.photo_url}')"` : '' %>><%= helper.photo_url ? '' : helper.name.charAt(0) %></div>
               <div class="helper-info">
                 <strong><%= helper.name %></strong>
                 <div>

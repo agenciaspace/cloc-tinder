@@ -30,13 +30,15 @@ async function initDb() {
 
 /* ---------- Usuários ---------- */
 
-async function createUser(name, email, password, phoneRaw, bio, skills, helpCategories) {
+async function createUser(name, email, password, phoneRaw, bio, skills, helpCategories, extra = {}) {
   const e164 = phone.canonical(phoneRaw) || '';
   const data = unwrap(await sb.from('users').insert({
     name, email, password,
     phone: phoneRaw || '', bio: bio || '',
     skills: skills || [], help_categories: helpCategories || [],
     phone_e164: e164,
+    linkedin: extra.linkedin || '',
+    photo_url: extra.photoUrl || '',
   }).select('id').single());
   return data.id;
 }
@@ -50,7 +52,7 @@ async function findUserById(id) {
 }
 
 async function updateUser(id, fields) {
-  const allowed = ['name', 'phone', 'bio', 'skills', 'help_categories', 'available', 'can_help', 'needs_help'];
+  const allowed = ['name', 'phone', 'bio', 'skills', 'help_categories', 'available', 'can_help', 'needs_help', 'linkedin', 'photo_url'];
   const upd = {};
   for (const key of allowed) if (fields[key] !== undefined) upd[key] = fields[key];
   if (Object.keys(upd).length === 0) return;
@@ -184,6 +186,31 @@ async function isPhoneRegistered(rawPhone) {
   return data.length > 0;
 }
 
+// Todos os membros do grupo, indicando quem já se registrou (casa pelo telefone canônico).
+async function getGroupMembersWithStatus() {
+  const [members, users] = await Promise.all([
+    unwrap(await sb.from('group_members').select('phone, jid, is_admin')),
+    unwrap(await sb.from('users').select('name, email, phone_e164, photo_url, is_admin, is_banned')),
+  ]);
+  const byPhone = new Map(users.filter(u => u.phone_e164).map(u => [u.phone_e164, u]));
+  const list = members.map(m => {
+    const u = byPhone.get(m.phone) || null;
+    return {
+      phone: m.phone,
+      groupAdmin: Number(m.is_admin) === 1,
+      registered: !!u,
+      name: u ? u.name : null,
+      email: u ? u.email : null,
+      photo_url: u ? u.photo_url : null,
+      is_banned: u ? Number(u.is_banned) === 1 : false,
+    };
+  });
+  // registrados primeiro, depois por telefone
+  list.sort((a, b) => (b.registered - a.registered) || a.phone.localeCompare(b.phone));
+  const registered = list.filter(m => m.registered).length;
+  return { list, total: list.length, registered, pending: list.length - registered };
+}
+
 async function getMemberStats() {
   const { count, error } = await sb.from('group_members').select('*', { count: 'exact', head: true });
   if (error) throw new Error(error.message);
@@ -195,7 +222,7 @@ async function getMemberStats() {
 
 async function getAllUsers() {
   return unwrap(await sb.from('users')
-    .select('id, name, email, phone, phone_e164, is_admin, is_banned, created_at')
+    .select('id, name, email, phone, phone_e164, linkedin, photo_url, is_admin, is_banned, created_at')
     .order('created_at', { ascending: false }));
 }
 
@@ -236,6 +263,23 @@ async function deleteNeed(id) {
   unwrap(await sb.from('needs').delete().eq('id', Number(id)));
 }
 
+/* ---------- Push subscriptions ---------- */
+
+async function savePushSubscription(userId, sub) {
+  unwrap(await sb.from('push_subscriptions').upsert(
+    { user_id: Number(userId), endpoint: sub.endpoint, keys: sub.keys },
+    { onConflict: 'endpoint' }
+  ));
+}
+
+async function getPushSubscriptionsByUser(userId) {
+  return unwrap(await sb.from('push_subscriptions').select('endpoint, keys').eq('user_id', Number(userId)));
+}
+
+async function deletePushSubscription(endpoint) {
+  unwrap(await sb.from('push_subscriptions').delete().eq('endpoint', endpoint));
+}
+
 async function getStats() {
   const count = async (table, apply) => {
     let qb = sb.from(table).select('*', { count: 'exact', head: true });
@@ -260,9 +304,10 @@ async function getStats() {
 module.exports = {
   initDb, createUser, findUserByEmail, findUserById,
   updateUser, getProfileByUserId,
-  replaceGroupMembers, isPhoneAllowed, isPhoneRegistered, getMemberStats,
+  replaceGroupMembers, isPhoneAllowed, isPhoneRegistered, getMemberStats, getGroupMembersWithStatus,
   getAllUsers, setUserAdmin, setUserBanned, deleteUserCascade,
   getAllNeeds, getAllMatches, deleteNeed, getStats,
+  savePushSubscription, getPushSubscriptionsByUser, deletePushSubscription,
   createNeed, getOpenNeeds, getNeedsByUserId, getNeedById, updateNeed,
   createMatch, getMatchesByHelperId, getMatchById, updateMatch, getPotentialHelpers,
   createNotification, getNotificationsByUserId, markNotificationsRead, getUnreadNotificationCount,

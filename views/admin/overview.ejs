@@ -48,13 +48,17 @@
       </p>
     </div>
   </div>
-  <form method="POST" action="/admin/sync-whatsapp">
-    <button type="submit" class="btn btn-sm btn-secondary">↻ Sincronizar agora</button>
-  </form>
+  <div class="dashboard-actions">
+    <a href="/admin/members" class="btn btn-sm btn-secondary">Ver membros</a>
+    <form method="POST" action="/admin/sync-whatsapp">
+      <button type="submit" class="btn btn-sm btn-secondary">↻ Sincronizar agora</button>
+    </form>
+  </div>
 </div>
 
 <div class="admin-quicklinks">
+  <a href="/admin/members" class="btn btn-secondary">Membros do grupo (registrados/não) →</a>
   <a href="/admin/participants" class="btn btn-secondary">Gerenciar participantes →</a>
-  <a href="/admin/needs" class="btn btn-secondary">Ver necessidades & matches →</a>
+  <a href="/admin/needs" class="btn btn-secondary">Necessidades & matches →</a>
 </div>
 <%- include('../partials/footer') %>

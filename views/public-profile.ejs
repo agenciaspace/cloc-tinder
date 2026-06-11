@@ -2,9 +2,10 @@
 <div class="profile-page">
   <div class="profile-card">
     <div class="profile-header">
-      <div class="profile-avatar"><%= profile.name.charAt(0) %></div>
+      <div class="profile-avatar <%= profile.photo_url ? 'avatar-img' : '' %>"<%= profile.photo_url ? ` style="background-image:url('${profile.photo_url}')"` : '' %>><%= profile.photo_url ? '' : profile.name.charAt(0) %></div>
       <div>
         <h1><%= profile.name %></h1>
+        <% if (profile.linkedin) { %><a href="<%= profile.linkedin %>" target="_blank" rel="noopener" class="linkedin-link">in/ LinkedIn ↗</a><% } %>
       </div>
     </div>
 

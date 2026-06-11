@@ -7,7 +7,10 @@
     <h1>Olá, <%= user.name %>!</h1>
     <p>Bem-vindo ao CLOC-Tinder</p>
   </div>
-  <a href="/needs/new" class="btn btn-primary">+ Nova Necessidade</a>
+  <div class="dashboard-actions">
+    <button type="button" class="btn btn-secondary" onclick="clocEnablePush(this)">🔔 Ativar notificações</button>
+    <a href="/needs/new" class="btn btn-primary">+ Nova Necessidade</a>
+  </div>
 </div>
 
 <div class="profile-summary">

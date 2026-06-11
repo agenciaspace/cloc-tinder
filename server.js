@@ -70,6 +70,7 @@ app.use(require('./routes/auth'));
 app.use(require('./routes/profile'));
 app.use(require('./routes/needs'));
 app.use(require('./routes/matches'));
+app.use(require('./routes/push'));
 app.use('/admin', require('./routes/admin'));
 
 app.get('/', (req, res) => {
