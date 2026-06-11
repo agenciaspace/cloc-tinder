@@ -1,5 +1,5 @@
 /* CLOC-Tinder service worker — cache de estáticos, fallback offline e push. */
-const CACHE = 'cloc-static-v1';
+const CACHE = 'cloc-static-v2';
 const STATIC = ['/css/style.css', '/icon.svg', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
