@@ -170,11 +170,20 @@ async function searchNeeds(query) {
 /* ---------- Membros do grupo WhatsApp (cache de autorização) ---------- */
 
 async function replaceGroupMembers(members) {
-  unwrap(await sb.from('group_members').delete().not('phone', 'is', null));
   const rows = members.filter(m => m.phone).map(m => ({
     phone: m.phone, jid: m.jid || '', name: m.name || '', photo: m.photo || '', is_admin: m.isAdmin ? 1 : 0,
   }));
-  if (rows.length) unwrap(await sb.from('group_members').upsert(rows));
+  if (!rows.length) return;
+  // Upsert primeiro (a tabela nunca fica vazia), depois remove quem saiu do grupo.
+  unwrap(await sb.from('group_members').upsert(rows));
+  const keep = rows.map(r => r.phone);
+  unwrap(await sb.from('group_members').delete().not('phone', 'in', `(${keep.map(p => `"${p}"`).join(',')})`));
+}
+
+// Mapa phone -> { name, photo } do que já está salvo (para preservar entre syncs).
+async function getGroupMemberInfoMap() {
+  const rows = unwrap(await sb.from('group_members').select('phone, name, photo'));
+  return new Map(rows.map(r => [r.phone, { name: r.name || '', photo: r.photo || '' }]));
 }
 
 async function isPhoneAllowed(rawPhone) {
@@ -311,6 +320,7 @@ module.exports = {
   initDb, createUser, findUserByEmail, findUserById,
   updateUser, getProfileByUserId,
   replaceGroupMembers, isPhoneAllowed, isPhoneRegistered, getMemberStats, getGroupMembersWithStatus,
+  getGroupMemberInfoMap,
   getAllUsers, setUserAdmin, setUserBanned, deleteUserCascade,
   getAllNeeds, getAllMatches, deleteNeed, getStats,
   savePushSubscription, getPushSubscriptionsByUser, deletePushSubscription,

@@ -44,28 +44,39 @@ async function listGroups() {
   return data.groups || data || [];
 }
 
-// Mapa telefone(canônico) -> { name, photo } a partir dos chats conhecidos
-// (pushName/contato + foto de perfil). Cobertura cresce conforme a instância
-// captura atividade do grupo. Best-effort: nunca derruba o sync.
-async function fetchNamePhotoMap() {
-  const map = new Map();
+// Busca nome (pushName) e foto de um número via /chat/details (consulta ao vivo,
+// funciona mesmo para quem não é contato salvo). Best-effort.
+async function chatDetails(number) {
   try {
-    const data = await call('/chat/find', { method: 'POST', body: { limit: 5000 } });
-    const chats = data.chats || [];
-    for (const ch of chats) {
-      const cid = String(ch.wa_chatid || '');
-      if (cid.includes('@g.us')) continue;
-      const canon = phone.canonical(cid.split('@')[0]);
-      if (!canon || map.has(canon)) continue;
-      let name = (ch.wa_contactName || ch.wa_name || ch.name || '').trim();
-      // descarta "nomes" que são só o próprio número
-      if (name && phone.canonical(name) === canon) name = '';
-      map.set(canon, { name, photo: ch.image || '' });
-    }
-  } catch (err) {
-    console.warn('[whatsapp] enriquecimento de nomes indisponível:', err.message);
+    const d = await call('/chat/details', { method: 'POST', body: { number, preview: true } });
+    let name = (d.name || d.wa_name || d.wa_contactName || '').trim();
+    if (name && phone.canonical(name) === phone.canonical(number)) name = ''; // nome == número
+    return { name, photo: d.imagePreview || d.image || '' };
+  } catch {
+    return null;
   }
-  return map;
+}
+
+// Enriquece a lista com nome+foto via /chat/details, em lotes.
+// A 1ª chamada a um número desconhecido pode voltar vazia (dispara busca ao
+// vivo no WhatsApp); por isso re-tentamos os vazios em passes adicionais.
+async function enrichMembers(members, passes = 1) {
+  const CHUNK = 20;
+  async function runPass(list) {
+    for (let i = 0; i < list.length; i += CHUNK) {
+      const slice = list.slice(i, i + CHUNK);
+      await Promise.all(slice.map(async (m) => {
+        const d = await chatDetails(m.phone);
+        if (d) { if (d.name) m.name = d.name; if (d.photo) m.photo = d.photo; }
+      }));
+    }
+  }
+  let pending = members;
+  for (let p = 0; p < passes && pending.length; p++) {
+    if (p > 0) await new Promise((r) => setTimeout(r, 1500));
+    await runPass(pending);
+    pending = pending.filter((m) => !m.name);
+  }
 }
 
 // Membros do grupo configurado -> [{ phone (canônico), jid, isAdmin }]
@@ -110,14 +121,19 @@ function generateCode() {
 // Sincroniza a lista de membros para o cache no banco. Retorna { ok, count, error }.
 async function syncGroupMembers() {
   try {
-    const [members, nameMap] = await Promise.all([fetchGroupMembers(), fetchNamePhotoMap()]);
+    const members = await fetchGroupMembers();
+    // Preserva nome/foto já obtidos; só consulta os que ainda faltam.
+    const existing = await db.getGroupMemberInfoMap();
+    const missing = [];
     for (const m of members) {
-      const info = nameMap.get(m.phone);
-      if (info) { m.name = info.name; m.photo = info.photo; }
+      const e = existing.get(m.phone);
+      if (e && e.name) { m.name = e.name; if (e.photo) m.photo = e.photo; }
+      else missing.push(m);
     }
+    await enrichMembers(missing);
     await db.replaceGroupMembers(members);
     const named = members.filter(m => m.name).length;
-    console.log(`[whatsapp] sync ok — ${members.length} membros (${named} com nome)`);
+    console.log(`[whatsapp] sync ok — ${members.length} membros (${named} com nome, ${missing.length} consultados)`);
     return { ok: true, count: members.length, named };
   } catch (err) {
     console.error('[whatsapp] sync falhou:', err.message);
