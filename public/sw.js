@@ -1,5 +1,5 @@
 /* CLOC-Tinder service worker — cache de estáticos, fallback offline e push. */
-const CACHE = 'cloc-static-v2';
+const CACHE = 'cloc-static-v3';
 const STATIC = ['/css/style.css', '/icon.svg', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -33,15 +33,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Estáticos: cache primeiro, atualizando em segundo plano.
+  // Estáticos: REDE PRIMEIRO (sempre pega a versão mais nova quando online),
+  // caindo para o cache só quando offline.
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const network = fetch(request).then((resp) => {
-        if (resp.ok) caches.open(CACHE).then((c) => c.put(request, resp.clone()));
-        return resp;
-      }).catch(() => cached);
-      return cached || network;
-    })
+    fetch(request).then((resp) => {
+      if (resp.ok) {
+        const copy = resp.clone();
+        caches.open(CACHE).then((c) => c.put(request, copy));
+      }
+      return resp;
+    }).catch(() => caches.match(request))
   );
 });
 
