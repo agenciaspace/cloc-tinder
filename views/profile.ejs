@@ -12,10 +12,23 @@
       </div>
     </div>
 
-    <form method="POST" action="/profile">
+    <form method="POST" action="/profile" enctype="multipart/form-data">
+      <div class="form-group photo-field">
+        <label for="photo">Foto de perfil</label>
+        <div class="photo-upload">
+          <span class="photo-preview <%= profile.photo_url ? 'has-img' : '' %>" id="photoPreview"<%= profile.photo_url ? ` style="background-image:url('${profile.photo_url}')"` : '' %>><%= profile.photo_url ? '' : '🙂' %></span>
+          <label class="photo-btn" for="photo"><%= profile.photo_url ? 'Trocar foto' : 'Escolher foto' %></label>
+          <input type="file" id="photo" name="photo" accept="image/png,image/jpeg,image/webp" hidden>
+          <span class="photo-name" id="photoName">PNG, JPG ou WEBP · até 5MB</span>
+        </div>
+      </div>
       <div class="form-group">
         <label for="name">Nome</label>
         <input type="text" id="name" name="name" value="<%= profile.name %>" required>
+      </div>
+      <div class="form-group">
+        <label for="linkedin">LinkedIn <span class="req">*</span></label>
+        <input type="url" id="linkedin" name="linkedin" value="<%= profile.linkedin || '' %>" required placeholder="https://linkedin.com/in/seu-perfil">
       </div>
 
       <div class="form-group">
@@ -64,4 +77,18 @@
     </form>
   </div>
 </div>
+<script>
+  const photoInput = document.getElementById('photo');
+  if (photoInput) photoInput.addEventListener('change', () => {
+    const file = photoInput.files[0]; if (!file) return;
+    document.getElementById('photoName').textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const prev = document.getElementById('photoPreview');
+      prev.style.backgroundImage = `url(${e.target.result})`;
+      prev.classList.add('has-img'); prev.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
 <%- include('partials/footer') %>

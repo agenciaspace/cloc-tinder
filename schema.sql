@@ -59,6 +59,8 @@ create table if not exists notifications (
 create table if not exists group_members (
   phone     text primary key,
   jid       text,
+  name      text default '',
+  photo     text default '',
   is_admin  int default 0,
   synced_at timestamptz default now()
 );

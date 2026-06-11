@@ -26,6 +26,8 @@
         CLOC-Tinder
         <% if (typeof adminView !== 'undefined' && adminView) { %><span class="nav-admin-tag">admin</span><% } %>
       </a>
+      <input type="checkbox" id="navToggle" class="nav-toggle" hidden>
+      <label for="navToggle" class="nav-burger" aria-label="Abrir menu">☰</label>
       <% if (user) { %>
         <% if (typeof adminView !== 'undefined' && adminView) { %>
           <div class="nav-links">

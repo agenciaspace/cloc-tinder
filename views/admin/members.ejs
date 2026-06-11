@@ -40,10 +40,10 @@
         <tr class="<%= m.registered ? '' : 'row-pending' %>">
           <td>
             <div class="cell-user">
-              <span class="mini-avatar <%= m.photo_url ? 'avatar-img' : '' %>"<%= m.photo_url ? ` style=\"background-image:url('${m.photo_url}')\"` : '' %>><%= m.photo_url ? '' : (m.registered ? (m.name||'?').charAt(0) : '·') %></span>
+              <span class="mini-avatar <%= m.photo_url ? 'avatar-img' : '' %>"<%= m.photo_url ? ` style=\"background-image:url('${m.photo_url}')\"` : '' %>><%= m.photo_url ? '' : (m.name ? m.name.charAt(0) : '·') %></span>
               <div>
-                <strong><%= m.registered ? m.name : 'Ainda não registrado' %></strong>
-                <% if (m.registered) { %><small><%= m.email %></small><% } %>
+                <strong><%= m.name ? m.name : fmtPhone(m.phone) %></strong>
+                <% if (m.registered && m.email) { %><small><%= m.email %></small><% } else if (m.name) { %><small><%= fmtPhone(m.phone) %></small><% } %>
               </div>
             </div>
           </td>

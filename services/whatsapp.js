@@ -44,6 +44,30 @@ async function listGroups() {
   return data.groups || data || [];
 }
 
+// Mapa telefone(canônico) -> { name, photo } a partir dos chats conhecidos
+// (pushName/contato + foto de perfil). Cobertura cresce conforme a instância
+// captura atividade do grupo. Best-effort: nunca derruba o sync.
+async function fetchNamePhotoMap() {
+  const map = new Map();
+  try {
+    const data = await call('/chat/find', { method: 'POST', body: { limit: 5000 } });
+    const chats = data.chats || [];
+    for (const ch of chats) {
+      const cid = String(ch.wa_chatid || '');
+      if (cid.includes('@g.us')) continue;
+      const canon = phone.canonical(cid.split('@')[0]);
+      if (!canon || map.has(canon)) continue;
+      let name = (ch.wa_contactName || ch.wa_name || ch.name || '').trim();
+      // descarta "nomes" que são só o próprio número
+      if (name && phone.canonical(name) === canon) name = '';
+      map.set(canon, { name, photo: ch.image || '' });
+    }
+  } catch (err) {
+    console.warn('[whatsapp] enriquecimento de nomes indisponível:', err.message);
+  }
+  return map;
+}
+
 // Membros do grupo configurado -> [{ phone (canônico), jid, isAdmin }]
 async function fetchGroupMembers() {
   const data = await call('/group/info', { method: 'POST', body: { groupjid: config.groupJid } });
@@ -86,10 +110,15 @@ function generateCode() {
 // Sincroniza a lista de membros para o cache no banco. Retorna { ok, count, error }.
 async function syncGroupMembers() {
   try {
-    const members = await fetchGroupMembers();
+    const [members, nameMap] = await Promise.all([fetchGroupMembers(), fetchNamePhotoMap()]);
+    for (const m of members) {
+      const info = nameMap.get(m.phone);
+      if (info) { m.name = info.name; m.photo = info.photo; }
+    }
     await db.replaceGroupMembers(members);
-    console.log(`[whatsapp] sync ok — ${members.length} membros do grupo`);
-    return { ok: true, count: members.length };
+    const named = members.filter(m => m.name).length;
+    console.log(`[whatsapp] sync ok — ${members.length} membros (${named} com nome)`);
+    return { ok: true, count: members.length, named };
   } catch (err) {
     console.error('[whatsapp] sync falhou:', err.message);
     return { ok: false, error: err.message };

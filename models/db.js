@@ -168,7 +168,9 @@ async function searchNeeds(query) {
 
 async function replaceGroupMembers(members) {
   unwrap(await sb.from('group_members').delete().not('phone', 'is', null));
-  const rows = members.filter(m => m.phone).map(m => ({ phone: m.phone, jid: m.jid || '', is_admin: m.isAdmin ? 1 : 0 }));
+  const rows = members.filter(m => m.phone).map(m => ({
+    phone: m.phone, jid: m.jid || '', name: m.name || '', photo: m.photo || '', is_admin: m.isAdmin ? 1 : 0,
+  }));
   if (rows.length) unwrap(await sb.from('group_members').upsert(rows));
 }
 
@@ -189,19 +191,20 @@ async function isPhoneRegistered(rawPhone) {
 // Todos os membros do grupo, indicando quem já se registrou (casa pelo telefone canônico).
 async function getGroupMembersWithStatus() {
   const [members, users] = await Promise.all([
-    unwrap(await sb.from('group_members').select('phone, jid, is_admin')),
+    unwrap(await sb.from('group_members').select('phone, jid, name, photo, is_admin')),
     unwrap(await sb.from('users').select('name, email, phone_e164, photo_url, is_admin, is_banned')),
   ]);
   const byPhone = new Map(users.filter(u => u.phone_e164).map(u => [u.phone_e164, u]));
   const list = members.map(m => {
     const u = byPhone.get(m.phone) || null;
+    // Nome/foto: conta registrada tem prioridade; senão usa o do WhatsApp.
     return {
       phone: m.phone,
       groupAdmin: Number(m.is_admin) === 1,
       registered: !!u,
-      name: u ? u.name : null,
+      name: u ? u.name : (m.name || null),
       email: u ? u.email : null,
-      photo_url: u ? u.photo_url : null,
+      photo_url: u ? (u.photo_url || m.photo || null) : (m.photo || null),
       is_banned: u ? Number(u.is_banned) === 1 : false,
     };
   });
