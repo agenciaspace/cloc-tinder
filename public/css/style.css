@@ -337,7 +337,42 @@ a { color: var(--coral-deep); }
   text-align: center;
   margin-bottom: 44px;
 }
+.section-sub { text-align: center; color: var(--ink-soft); font-size: 16px; max-width: 56ch; margin: -28px auto 40px; line-height: 1.6; }
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.hiw-steps { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+
+/* "como funciona" — papéis */
+.hiw-roles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 22px; }
+.hiw-role {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 18px 20px; box-shadow: var(--sh-sm); font-size: 14.5px; line-height: 1.55; color: var(--ink-soft);
+}
+.hiw-role strong { color: var(--ink); }
+.hiw-role-icon { font-size: 24px; line-height: 1.2; flex-shrink: 0; }
+
+/* onboarding (perfil) — versão compacta em lista */
+.onboarding-card {
+  background: var(--ember-soft);
+  border: 1px solid rgba(255,91,78,.22);
+  border-radius: var(--r-lg);
+  padding: 28px; margin-bottom: 24px;
+}
+.onboarding-card h2 { font-family: var(--font-display); font-weight: 600; font-size: 23px; letter-spacing: -.02em; }
+.onboarding-sub { color: var(--ink-soft); margin: 4px 0 18px; font-size: 14.5px; }
+.hiw-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.hiw-list li { display: flex; align-items: flex-start; gap: 13px; }
+.hiw-num {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 9px;
+  background: var(--ember); color: #fff; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 600; font-size: 15px;
+}
+.hiw-list li strong { display: block; font-size: 15px; margin-bottom: 1px; }
+.hiw-list li p { color: var(--ink-soft); font-size: 13.5px; line-height: 1.5; }
+.onboarding-card .hiw-roles { margin-top: 18px; }
+.onboarding-card .hiw-role { background: rgba(255,255,255,.6); }
+
+@media (max-width: 560px) { .hiw-roles { grid-template-columns: 1fr; } }
 .step {
   text-align: left;
   padding: 30px 28px;

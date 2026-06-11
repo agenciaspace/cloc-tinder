@@ -1,0 +1,37 @@
+<%
+  const hiwSteps = [
+    { n: 1, t: 'Complete seu perfil', d: 'Informe suas habilidades e as áreas em que pode ajudar. Marque se quer ajudar, precisa de ajuda — ou os dois.' },
+    { n: 2, t: 'Publique uma necessidade', d: 'Precisa de algo? Descreva e escolha a categoria (tecnologia, carreira, jurídico, design...).' },
+    { n: 3, t: 'O match acontece', d: 'Mostramos automaticamente as pessoas com perfil compatível com a necessidade. Quem pode ajudar se oferece.' },
+    { n: 4, t: 'Conectem-se', d: 'Você aceita a oferta e o contato é liberado para vocês resolverem juntos, direto no WhatsApp.' },
+  ];
+  const hiwCompact = (typeof compact !== 'undefined' && compact);
+%>
+<% if (hiwCompact) { %>
+  <ol class="hiw-list">
+    <% hiwSteps.forEach(s => { %>
+      <li><span class="hiw-num"><%= s.n %></span><div><strong><%= s.t %></strong><p><%= s.d %></p></div></li>
+    <% }) %>
+  </ol>
+<% } else { %>
+  <div class="steps hiw-steps">
+    <% hiwSteps.forEach(s => { %>
+      <div class="step">
+        <div class="step-number"><%= s.n %></div>
+        <h3><%= s.t %></h3>
+        <p><%= s.d %></p>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<div class="hiw-roles">
+  <div class="hiw-role">
+    <span class="hiw-role-icon">🙋</span>
+    <div><strong>Precisa de ajuda?</strong> Publique sua necessidade, receba ofertas de quem pode ajudar, aceite a melhor e troquem contato.</div>
+  </div>
+  <div class="hiw-role">
+    <span class="hiw-role-icon">🤝</span>
+    <div><strong>Quer ajudar?</strong> Complete seu perfil com suas áreas, veja as necessidades compatíveis e ofereça ajuda com um clique.</div>
+  </div>
+</div>

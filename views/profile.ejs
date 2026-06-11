@@ -3,6 +3,12 @@
 <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
 
 <div class="profile-page">
+  <div class="onboarding-card">
+    <h2>👋 Como funciona o CLOC-Tinder</h2>
+    <p class="onboarding-sub">Complete seu perfil abaixo para começar a dar e receber ajuda.</p>
+    <%- include('partials/how-it-works', { compact: true }) %>
+  </div>
+
   <div class="profile-card">
     <div class="profile-header">
       <div class="profile-avatar <%= profile.photo_url ? 'avatar-img' : '' %>"<%= profile.photo_url ? ` style="background-image:url('${profile.photo_url}')"` : '' %>><%= profile.photo_url ? '' : profile.name.charAt(0) %></div>
