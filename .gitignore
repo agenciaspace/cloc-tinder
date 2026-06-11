@@ -1,0 +1,17 @@
+# Segredos — NUNCA commitar
+.env
+.env.*
+!.env.example
+
+# Dependências
+node_modules/
+
+# Banco local antigo (sql.js) — não usado mais
+data/*.db
+data/
+
+# Logs e temporários
+*.log
+.DS_Store
+.vercel
+.playwright-cli/

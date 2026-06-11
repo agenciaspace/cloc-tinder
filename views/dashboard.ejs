@@ -1,0 +1,102 @@
+<%- include('partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="dashboard-header">
+  <div>
+    <h1>Olá, <%= user.name %>!</h1>
+    <p>Bem-vindo ao CLOC-Tinder</p>
+  </div>
+  <a href="/needs/new" class="btn btn-primary">+ Nova Necessidade</a>
+</div>
+
+<div class="profile-summary">
+  <div class="profile-summary-card">
+    <h3>Seu Perfil</h3>
+    <% if (profile) { %>
+      <p><strong>Habilidades:</strong> <%= profile.skills && profile.skills.length ? profile.skills.join(', ') : 'Nenhuma cadastrada' %></p>
+      <p><strong>Categorias:</strong> <%= profile.help_categories && profile.help_categories.length ? profile.help_categories.join(', ') : 'Nenhuma' %></p>
+      <p>
+        <span class="tag <%= profile.can_help ? 'tag-green' : 'tag-gray' %>">
+          <%= profile.can_help ? '✅ Quero ajudar' : '❌ Não posso ajudar agora' %>
+        </span>
+        <span class="tag <%= profile.needs_help ? 'tag-blue' : 'tag-gray' %>">
+          <%= profile.needs_help ? '🙋 Preciso de ajuda' : '❌ Não preciso' %>
+        </span>
+      </p>
+    <% } else { %>
+      <p>Complete seu perfil para começar.</p>
+    <% } %>
+    <a href="/profile/edit" class="btn btn-sm btn-secondary">Editar Perfil</a>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <div class="card">
+    <div class="card-header">
+      <h2>🙋 Minhas Necessidades</h2>
+      <a href="/needs/new" class="btn btn-sm btn-primary">Nova</a>
+    </div>
+    <div class="card-body">
+      <% if (myNeeds.length === 0) { %>
+        <p class="empty-state">Nenhuma necessidade cadastrada ainda.</p>
+      <% } else { %>
+        <% myNeeds.slice(0, 5).forEach(need => { %>
+          <div class="need-item">
+            <div>
+              <strong><%= need.title %></strong>
+              <span class="tag tag-<%= need.status %>"><%= need.status %></span>
+            </div>
+            <small><%= need.category %> &middot; <%= new Date(need.created_at).toLocaleDateString('pt-BR') %></small>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>⚡ Necessidades Abertas</h2>
+      <a href="/needs" class="btn btn-sm btn-secondary">Ver todas</a>
+    </div>
+    <div class="card-body">
+      <% if (needs.length === 0) { %>
+        <p class="empty-state">Nenhuma necessidade no momento.</p>
+      <% } else { %>
+        <% needs.slice(0, 5).forEach(need => { %>
+          <div class="need-item">
+            <div>
+              <strong><%= need.title %></strong>
+              <span class="tag tag-open">aberta</span>
+            </div>
+            <small>
+              <%= need.category %> &middot; <%= need.requester_name %>
+              &middot; <a href="/needs/<%= need.id %>">Ver</a>
+            </small>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<% if (matches.length > 0) { %>
+<div class="card" style="margin-top: 24px;">
+  <div class="card-header">
+    <h2>🤝 Meus Matches</h2>
+    <a href="/matches" class="btn btn-sm btn-secondary">Ver todos</a>
+  </div>
+  <div class="card-body">
+    <% matches.slice(0, 5).forEach(match => { %>
+      <div class="need-item">
+        <div>
+          <strong><%= match.need_title %></strong>
+          <span class="tag tag-<%= match.status %>"><%= match.status %></span>
+        </div>
+        <small><%= match.requester_name %> &middot; <%= match.need_category %></small>
+      </div>
+    <% }) %>
+  </div>
+</div>
+<% } %>
+<%- include('partials/footer') %>

@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+<div class="profile-page">
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="profile-avatar"><%= profile.name.charAt(0) %></div>
+      <div>
+        <h1><%= profile.name %></h1>
+      </div>
+    </div>
+
+    <% if (profile.bio) { %>
+      <div class="profile-section">
+        <h3>Sobre</h3>
+        <p><%= profile.bio %></p>
+      </div>
+    <% } %>
+
+    <% if (profile.skills && profile.skills.length) { %>
+      <div class="profile-section">
+        <h3>Habilidades</h3>
+        <div class="tags">
+          <% profile.skills.forEach(skill => { %>
+            <span class="tag tag-blue"><%= skill %></span>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (profile.help_categories && profile.help_categories.length) { %>
+      <div class="profile-section">
+        <h3>Categorias que pode ajudar</h3>
+        <div class="tags">
+          <% profile.help_categories.forEach(cat => { %>
+            <span class="tag tag-green"><%= cat %></span>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <a href="/needs" class="btn btn-primary">Ver Necessidades</a>
+  </div>
+</div>
+<%- include('partials/footer') %>

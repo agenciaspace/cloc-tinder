@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLOC-Tinder — onde a ajuda dá match</title>
+  <meta name="description" content="CLOC-Tinder conecta quem precisa de ajuda com quem pode ajudar. Match automático entre perfis e necessidades.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔥%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar <%= (typeof adminView !== 'undefined' && adminView) ? 'navbar-admin' : '' %>">
+    <div class="container nav-container">
+      <a href="<%= (typeof adminView !== 'undefined' && adminView) ? '/admin' : '/' %>" class="nav-logo">
+        <span class="logo-icon">🔥</span>
+        CLOC-Tinder
+        <% if (typeof adminView !== 'undefined' && adminView) { %><span class="nav-admin-tag">admin</span><% } %>
+      </a>
+      <% if (user) { %>
+        <% if (typeof adminView !== 'undefined' && adminView) { %>
+          <div class="nav-links">
+            <a href="/admin" class="nav-link">Painel</a>
+            <a href="/admin/participants" class="nav-link">Participantes</a>
+            <a href="/admin/needs" class="nav-link">Necessidades</a>
+            <a href="/admin/view/user" class="nav-link nav-viewas">👁 Ver como usuário</a>
+            <a href="/logout" class="nav-link nav-logout">Sair</a>
+          </div>
+        <% } else { %>
+          <div class="nav-links">
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/needs" class="nav-link">Necessidades</a>
+            <a href="/matches" class="nav-link">Meus Matches</a>
+            <a href="/profile" class="nav-link">Perfil</a>
+            <a href="/logout" class="nav-link nav-logout">Sair</a>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="nav-links">
+          <a href="/login" class="nav-link">Entrar</a>
+          <a href="/register" class="nav-link nav-register">Cadastrar</a>
+        </div>
+      <% } %>
+    </div>
+  </nav>
+  <% if (user && typeof isAdmin !== 'undefined' && isAdmin && (typeof adminView === 'undefined' || !adminView)) { %>
+    <div class="viewas-banner">
+      <div class="container">
+        👁 Você está vendo como <strong>usuário comum</strong>.
+        <a href="/admin/view/admin">Voltar ao painel admin →</a>
+      </div>
+    </div>
+  <% } %>
+  <main class="container">

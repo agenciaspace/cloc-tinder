@@ -1,0 +1,50 @@
+<%- include('partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="page-header">
+  <h1>🤝 Meus Matches</h1>
+</div>
+
+<% if (matches.length === 0) { %>
+  <div class="empty-page">
+    <p>Você ainda não tem matches.</p>
+    <p>Navegue pelas <a href="/needs">necessidades abertas</a> e ofereça ajuda!</p>
+  </div>
+<% } else { %>
+  <div class="matches-list">
+    <% matches.forEach(match => { %>
+      <div class="match-card">
+        <div class="match-card-header">
+          <span class="tag tag-<%= match.need_category %>"><%= match.need_category %></span>
+          <span class="tag tag-<%= match.status %>"><%= match.status %></span>
+        </div>
+        <h3><%= match.need_title %></h3>
+        <p><%= match.need_description ? match.need_description.substring(0, 100) + (match.need_description.length > 100 ? '...' : '') : '' %></p>
+        <div class="match-card-meta">
+          <span>Solicitante: <%= match.requester_name %></span>
+          <span>Status: <%= match.need_status %></span>
+        </div>
+        <div class="match-card-actions">
+          <% if (match.status === 'pending') { %>
+            <% if (match.need_status === 'open') { %>
+              <form method="POST" action="/matches/<%= match.id %>/accept" style="display:inline">
+                <button type="submit" class="btn btn-sm btn-primary">✓ Aceitar</button>
+              </form>
+              <form method="POST" action="/matches/<%= match.id %>/reject" style="display:inline">
+                <button type="submit" class="btn btn-sm btn-danger">✕ Recusar</button>
+              </form>
+            <% } else { %>
+              <span class="tag tag-gray">Aguardando</span>
+            <% } %>
+          <% } else if (match.status === 'accepted') { %>
+            <span class="tag tag-green">✅ Match confirmado</span>
+          <% } else { %>
+            <span class="tag tag-gray">Recusado</span>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+<%- include('partials/footer') %>

@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["views/**", "public/**", "config/**", "models/**", "routes/**", "services/**"] }
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "api/index.js" }
+  ],
+  "crons": [
+    { "path": "/api/cron/sync", "schedule": "0 */6 * * *" }
+  ]
+}

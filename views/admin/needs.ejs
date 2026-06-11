@@ -1,0 +1,86 @@
+<%- include('../partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="page-header">
+  <div>
+    <h1>Necessidades & matches</h1>
+    <p class="subtitle"><%= needs.length %> necessidade(s) · <%= matches.length %> match(es)</p>
+  </div>
+  <a href="/admin" class="btn btn-sm btn-secondary">← Painel</a>
+</div>
+
+<h2 class="admin-subhead">Todas as necessidades</h2>
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Necessidade</th>
+        <th>Solicitante</th>
+        <th>Categoria</th>
+        <th>Status</th>
+        <th>Ofertas</th>
+        <th class="ta-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (needs.length === 0) { %>
+        <tr><td colspan="6" class="empty-state">Nenhuma necessidade cadastrada.</td></tr>
+      <% } %>
+      <% needs.forEach(n => { %>
+        <tr>
+          <td>
+            <strong><%= n.title %></strong>
+            <small><%= new Date(n.created_at).toLocaleDateString('pt-BR') %></small>
+          </td>
+          <td><small><%= n.requester_name || '—' %></small></td>
+          <td><span class="tag tag-<%= n.category %>"><%= n.category %></span></td>
+          <td><span class="tag tag-<%= n.status %>"><%= n.status %></span></td>
+          <td><%= n.offers %></td>
+          <td class="ta-right">
+            <div class="row-actions">
+              <a href="/needs/<%= n.id %>" class="btn btn-sm btn-secondary">Ver</a>
+              <% if (n.status === 'open') { %>
+                <form method="POST" action="/admin/needs/<%= n.id %>/close"><button class="btn btn-sm btn-secondary">Fechar</button></form>
+              <% } %>
+              <form method="POST" action="/admin/needs/<%= n.id %>/delete"
+                    onsubmit="return confirm('Remover esta necessidade e seus matches?')">
+                <button class="btn btn-sm btn-danger">Remover</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="admin-subhead">Todos os matches</h2>
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Necessidade</th>
+        <th>Voluntário</th>
+        <th>Solicitante</th>
+        <th>Status</th>
+        <th>Data</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (matches.length === 0) { %>
+        <tr><td colspan="5" class="empty-state">Nenhum match ainda.</td></tr>
+      <% } %>
+      <% matches.forEach(m => { %>
+        <tr>
+          <td><strong><%= m.need_title %></strong></td>
+          <td><small><%= m.helper_name || '—' %></small></td>
+          <td><small><%= m.requester_name || '—' %></small></td>
+          <td><span class="tag tag-<%= m.status %>"><%= m.status %></span></td>
+          <td><small><%= new Date(m.created_at).toLocaleDateString('pt-BR') %></small></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,77 @@
+<%- include('partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="need-detail">
+  <a href="/needs" class="btn btn-sm btn-secondary">← Voltar</a>
+
+  <div class="need-detail-card">
+    <div class="need-detail-header">
+      <span class="tag tag-<%= need.category %>"><%= need.category %></span>
+      <span class="tag tag-<%= need.status %>"><%= need.status %></span>
+    </div>
+
+    <h1><%= need.title %></h1>
+
+    <% if (need.description) { %>
+      <p class="need-detail-desc"><%= need.description %></p>
+    <% } %>
+
+    <div class="need-detail-meta">
+      <p><strong>Solicitante:</strong> <%= need.requester_name %></p>
+      <% if (need.requester_phone) { %>
+        <p><strong>Contato:</strong> <%= need.requester_phone %></p>
+      <% } %>
+      <p><strong>Data:</strong> <%= new Date(need.created_at).toLocaleDateString('pt-BR') %></p>
+      <p><strong>Fonte:</strong> <%= need.source === 'whatsapp' ? 'Grupo WhatsApp' : 'App' %></p>
+    </div>
+
+    <div class="need-detail-actions">
+      <% if (need.status === 'open') { %>
+        <% if (userIsRequester) { %>
+          <form method="POST" action="/needs/<%= need.id %>/close" style="display:inline">
+            <button type="submit" class="btn btn-danger">Fechar Necessidade</button>
+          </form>
+        <% } else { %>
+          <% if (alreadyMatched) { %>
+            <p class="already-offered">Você já se ofereceu para ajudar!</p>
+          <% } else { %>
+            <form method="POST" action="/matches/<%= need.id %>/offer">
+              <button type="submit" class="btn btn-primary btn-lg">🤝 Oferecer Ajuda</button>
+            </form>
+          <% } %>
+        <% } %>
+      <% } else { %>
+        <p class="status-closed">Esta necessidade foi <%= need.status === 'matched' ? 'atendida' : 'fechada' %>.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (need.status === 'open' && helpers.length > 0) { %>
+    <div class="card" style="margin-top: 24px;">
+      <div class="card-header">
+        <h2>⚡ Matches Potenciais</h2>
+      </div>
+      <div class="card-body">
+        <p>Pessoas com perfil compatível para esta necessidade:</p>
+        <div class="helpers-list">
+          <% helpers.forEach(helper => { %>
+            <div class="helper-item">
+              <div class="helper-avatar"><%= helper.name.charAt(0) %></div>
+              <div class="helper-info">
+                <strong><%= helper.name %></strong>
+                <div>
+                  <% (helper.skills || []).slice(0, 3).forEach(s => { %>
+                    <span class="tag tag-sm tag-blue"><%= s %></span>
+                  <% }) %>
+                </div>
+              </div>
+              <a href="/user/<%= helper.id %>" class="btn btn-sm btn-secondary">Ver Perfil</a>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

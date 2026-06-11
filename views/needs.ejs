@@ -1,0 +1,48 @@
+<%- include('partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="page-header">
+  <h1>Necessidades Abertas</h1>
+  <a href="/needs/new" class="btn btn-primary">+ Nova</a>
+</div>
+
+<div class="filters">
+  <form method="GET" action="/needs" class="filter-form">
+    <input type="text" name="search" placeholder="Buscar necessidades..." value="<%= search %>" class="search-input">
+    <select name="category" class="filter-select">
+      <option value="">Todas as categorias</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat %>" <%= filter === cat ? 'selected' : '' %>>
+          <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
+        </option>
+      <% }) %>
+    </select>
+    <button type="submit" class="btn btn-secondary">Filtrar</button>
+  </form>
+</div>
+
+<% if (needs.length === 0) { %>
+  <div class="empty-page">
+    <p>Nenhuma necessidade encontrada.</p>
+    <a href="/needs/new" class="btn btn-primary">Criar primeira necessidade</a>
+  </div>
+<% } else { %>
+  <div class="needs-grid">
+    <% needs.forEach(need => { %>
+      <div class="need-card">
+        <div class="need-card-header">
+          <span class="tag tag-<%= need.category %>"><%= need.category %></span>
+          <small><%= new Date(need.created_at).toLocaleDateString('pt-BR') %></small>
+        </div>
+        <h3><%= need.title %></h3>
+        <p><%= need.description ? need.description.substring(0, 120) + (need.description.length > 120 ? '...' : '') : '' %></p>
+        <div class="need-card-footer">
+          <span>Por: <%= need.requester_name %></span>
+          <a href="/needs/<%= need.id %>" class="btn btn-sm btn-primary">Ver &amp; Ajudar</a>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+<%- include('partials/footer') %>

@@ -1,0 +1,69 @@
+<%- include('../partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="page-header">
+  <div>
+    <h1>Participantes</h1>
+    <p class="subtitle"><%= users.length %> usuário(s) na plataforma</p>
+  </div>
+  <a href="/admin" class="btn btn-sm btn-secondary">← Painel</a>
+</div>
+
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Usuário</th>
+        <th>WhatsApp</th>
+        <th>Papel</th>
+        <th class="ta-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(u => { %>
+        <tr class="<%= u.is_banned ? 'row-banned' : '' %>">
+          <td>
+            <div class="cell-user">
+              <span class="mini-avatar"><%= (u.name || '?').charAt(0) %></span>
+              <div>
+                <strong><%= u.name %></strong>
+                <small><%= u.email %></small>
+              </div>
+            </div>
+          </td>
+          <td><small><%= u.phone || '—' %></small></td>
+          <td>
+            <% if (u.isSuper) { %><span class="tag tag-tecnologia">super-admin</span>
+            <% } else if (u.is_admin) { %><span class="tag tag-open">admin</span>
+            <% } else { %><span class="tag tag-gray">membro</span><% } %>
+            <% if (u.is_banned) { %><span class="tag tag-rejected">banido</span><% } %>
+          </td>
+          <td class="ta-right">
+            <% if (u.isSuper) { %>
+              <span class="muted-note">protegido</span>
+            <% } else { %>
+              <div class="row-actions">
+                <% if (u.is_admin) { %>
+                  <form method="POST" action="/admin/participants/<%= u.id %>/demote"><button class="btn btn-sm btn-secondary">Rebaixar</button></form>
+                <% } else { %>
+                  <form method="POST" action="/admin/participants/<%= u.id %>/promote"><button class="btn btn-sm btn-secondary">Tornar admin</button></form>
+                <% } %>
+                <% if (u.is_banned) { %>
+                  <form method="POST" action="/admin/participants/<%= u.id %>/unban"><button class="btn btn-sm btn-secondary">Desbanir</button></form>
+                <% } else { %>
+                  <form method="POST" action="/admin/participants/<%= u.id %>/ban"><button class="btn btn-sm btn-danger">Banir</button></form>
+                <% } %>
+                <form method="POST" action="/admin/participants/<%= u.id %>/delete"
+                      onsubmit="return confirm('Remover <%= u.name %> e todo o conteúdo associado? Esta ação não pode ser desfeita.')">
+                  <button class="btn btn-sm btn-danger">Remover</button>
+                </form>
+              </div>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('../partials/footer') %>

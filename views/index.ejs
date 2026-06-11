@@ -1,0 +1,69 @@
+<%- include('partials/header') %>
+<div class="hero">
+  <div class="hero-content">
+    <span class="hero-eyebrow"><span class="dot"></span> A ajuda dá match</span>
+    <h1 class="hero-title">Quem precisa <span class="flame">encontra</span> quem pode ajudar.</h1>
+    <p class="hero-subtitle">
+      O match entre sua <strong>vontade de ajudar</strong> e a <strong>necessidade</strong> de alguém.
+    </p>
+    <p class="hero-desc">
+      Inspire pessoas a pedirem ajuda e incentive quem pode se disponibilizar —
+      criando matches reais entre perfis e necessidades, sem complicação.
+    </p>
+    <div class="hero-features">
+      <div class="hero-feature">
+        <span class="feature-icon">🙋</span>
+        <span>Peça ajuda</span>
+      </div>
+      <div class="hero-feature">
+        <span class="feature-icon">🤝</span>
+        <span>Ofereça ajuda</span>
+      </div>
+      <div class="hero-feature">
+        <span class="feature-icon">⚡</span>
+        <span>Match automático</span>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a href="/register" class="btn btn-primary btn-lg">Começar Agora</a>
+      <a href="/login" class="btn btn-secondary btn-lg">Já tenho conta</a>
+    </div>
+    <p class="hero-note">🔒 Exclusivo para membros do grupo <strong><%= wa.groupName %></strong> — confirmação por WhatsApp.</p>
+  </div>
+  <div class="hero-illustration">
+    <div class="illus-card illus-card-1">
+      <span>🙋</span>
+      <div>Preciso de ajuda<small>com meu currículo</small></div>
+    </div>
+    <div class="illus-card illus-card-2">
+      <span>🔥</span>
+      <div>É um match!<small>Vocês combinam</small></div>
+    </div>
+    <div class="illus-card illus-card-3">
+      <span>🤝</span>
+      <div>Posso ajudar<small>sou de RH há 8 anos</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">Como funciona</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-number">1</div>
+      <h3>Cadastre-se</h3>
+      <p>Crie seu perfil informando suas habilidades e categorias onde pode ajudar.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <h3>Publique ou busque</h3>
+      <p>Publique uma necessidade ou encontre pessoas que precisam de ajuda na sua área.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <h3>Match!</h3>
+      <p>Nosso algoritmo encontra o perfil ideal para cada necessidade. É só aceitar.</p>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

@@ -1,0 +1,60 @@
+<%- include('../partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="page-header">
+  <div>
+    <h1>Painel do administrador</h1>
+    <p class="subtitle">Visão geral da plataforma</p>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <span class="stat-num"><%= stats.users %></span>
+    <span class="stat-label">Usuários</span>
+    <span class="stat-sub"><%= stats.admins %> admin · <%= stats.banned %> banido(s)</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-num"><%= stats.needsOpen %></span>
+    <span class="stat-label">Necessidades abertas</span>
+    <span class="stat-sub"><%= stats.needsTotal %> no total</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-num"><%= stats.matchesTotal %></span>
+    <span class="stat-label">Matches</span>
+    <span class="stat-sub"><%= stats.matchesAccepted %> aceito(s)</span>
+  </div>
+  <div class="stat-card stat-card-accent">
+    <span class="stat-num"><%= taxaAtendimento %>%</span>
+    <span class="stat-label">Taxa de atendimento</span>
+    <span class="stat-sub"><%= stats.needsMatched %> de <%= stats.needsTotal %> atendidas</span>
+  </div>
+</div>
+
+<div class="admin-card" style="margin-top:24px">
+  <div class="admin-card-info">
+    <span class="admin-card-icon">🔒</span>
+    <div>
+      <h3>Grupo <%= wa.groupName %></h3>
+      <p>
+        <strong><%= memberStats.count %></strong> membros autorizados ·
+        <% if (memberStats.lastSyncedAt) { %>
+          última sincronização <%= new Date(memberStats.lastSyncedAt + ' UTC').toLocaleString('pt-BR') %>
+        <% } else { %>
+          ainda não sincronizado
+        <% } %>
+        <% if (!wa.isConfigured) { %><span class="tag tag-pending">integração não configurada</span><% } %>
+      </p>
+    </div>
+  </div>
+  <form method="POST" action="/admin/sync-whatsapp">
+    <button type="submit" class="btn btn-sm btn-secondary">↻ Sincronizar agora</button>
+  </form>
+</div>
+
+<div class="admin-quicklinks">
+  <a href="/admin/participants" class="btn btn-secondary">Gerenciar participantes →</a>
+  <a href="/admin/needs" class="btn btn-secondary">Ver necessidades & matches →</a>
+</div>
+<%- include('../partials/footer') %>
