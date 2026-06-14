@@ -40,7 +40,14 @@ router.post('/profile', requireAuth, uploadPhoto, async (req, res, next) => {
     }
 
     const skillsList = skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [];
-    const categoriesList = help_categories || [];
+    const raw = help_categories || [];
+    const categoriesList = (Array.isArray(raw) ? raw : [raw]).filter(Boolean);
+
+    // Todo perfil deve indicar pelo menos 3 áreas em que pode ajudar.
+    if (categoriesList.length < 3) {
+      req.session.error = 'Selecione pelo menos 3 áreas em que você pode ajudar.';
+      return res.redirect('/profile/edit');
+    }
 
     const fields = {
       name,
@@ -51,7 +58,7 @@ router.post('/profile', requireAuth, uploadPhoto, async (req, res, next) => {
       x: socials.cleanHandle(req.body.x),
       substack: socials.cleanHandle(req.body.substack),
       skills: skillsList,
-      help_categories: Array.isArray(categoriesList) ? categoriesList : [categoriesList],
+      help_categories: categoriesList,
       available: 1,
       can_help: can_help ? 1 : 0,
       needs_help: needs_help ? 1 : 0,

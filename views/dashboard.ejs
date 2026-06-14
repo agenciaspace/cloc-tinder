@@ -13,6 +13,19 @@
   </div>
 </div>
 
+<% const helpCount = (profile && profile.help_categories) ? profile.help_categories.length : 0; %>
+<% if (helpCount < 3) { %>
+  <a href="/profile/edit" class="complete-banner">
+    <span>⚠️</span>
+    <div>
+      <strong>Complete seu perfil para receber matches.</strong>
+      Indique <strong>pelo menos 3 áreas</strong> em que você pode ajudar
+      (<%= helpCount %>/3) — assim a gente te conecta às necessidades certas.
+    </div>
+    <span class="complete-cta">Editar →</span>
+  </a>
+<% } %>
+
 <div class="profile-summary">
   <div class="profile-summary-card">
     <h3>Seu Perfil</h3>

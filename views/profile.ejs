@@ -50,8 +50,11 @@
       </div>
 
       <div class="form-group">
-        <label>Categorias onde pode ajudar</label>
-        <div class="checkbox-grid">
+        <label>Áreas em que pode ajudar <span class="req">*</span>
+          <span class="cat-counter" id="catCounter">0 selecionadas</span>
+        </label>
+        <small class="field-hint">Escolha <strong>pelo menos 3</strong> — é assim que a gente te conecta às necessidades certas.</small>
+        <div class="checkbox-grid" id="catGrid">
           <% categories.forEach(cat => { %>
             <label class="checkbox-label">
               <input type="checkbox" name="help_categories" value="<%= cat %>"
@@ -81,6 +84,31 @@
   </div>
 </div>
 <script>
+  // Contador de áreas + exige pelo menos 3 ao enviar.
+  (function () {
+    const grid = document.getElementById('catGrid');
+    const counter = document.getElementById('catCounter');
+    const form = grid ? grid.closest('form') : null;
+    if (!grid || !form) return;
+    const boxes = () => [...grid.querySelectorAll('input[type=checkbox]')];
+    function update() {
+      const n = boxes().filter(b => b.checked).length;
+      counter.textContent = n + ' selecionada' + (n === 1 ? '' : 's');
+      counter.classList.toggle('ok', n >= 3);
+    }
+    grid.addEventListener('change', update);
+    form.addEventListener('submit', (e) => {
+      if (boxes().filter(b => b.checked).length < 3) {
+        e.preventDefault();
+        update();
+        counter.classList.add('warn');
+        grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alert('Selecione pelo menos 3 áreas em que você pode ajudar.');
+      }
+    });
+    update();
+  })();
+
   const photoInput = document.getElementById('photo');
   if (photoInput) photoInput.addEventListener('change', () => {
     const file = photoInput.files[0]; if (!file) return;
