@@ -21,10 +21,18 @@ create table if not exists users (
   x             text default '',
   substack      text default '',
   photo_url     text default '',
+  work          text default '',
+  interests     text default '',
+  cloc_competencies jsonb default '[]'::jsonb,
   is_admin      int default 0,
   is_banned     int default 0,
   created_at    timestamptz default now()
 );
+-- Mandala da CLOC (perfil): colunas adicionadas depois — alters idempotentes
+-- para bancos que já existiam antes desta feature.
+alter table users add column if not exists work text default '';
+alter table users add column if not exists interests text default '';
+alter table users add column if not exists cloc_competencies jsonb default '[]'::jsonb;
 -- Obs: o upload de foto usa o bucket público "avatars" do Supabase Storage
 -- (criado pela aplicação; público para leitura).
 

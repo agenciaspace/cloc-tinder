@@ -55,7 +55,7 @@ async function findUserById(id) {
 }
 
 async function updateUser(id, fields) {
-  const allowed = ['name', 'phone', 'bio', 'skills', 'help_categories', 'available', 'can_help', 'needs_help', 'linkedin', 'instagram', 'x', 'substack', 'photo_url'];
+  const allowed = ['name', 'phone', 'bio', 'skills', 'help_categories', 'available', 'can_help', 'needs_help', 'linkedin', 'instagram', 'x', 'substack', 'photo_url', 'work', 'interests', 'cloc_competencies'];
   const upd = {};
   for (const key of allowed) if (fields[key] !== undefined) upd[key] = fields[key];
   if (Object.keys(upd).length === 0) return;
@@ -65,7 +65,7 @@ async function updateUser(id, fields) {
 async function getProfileByUserId(id) {
   const user = await findUserById(id);
   if (!user) return null;
-  return { ...user, skills: user.skills || [], help_categories: user.help_categories || [], password: undefined };
+  return { ...user, skills: user.skills || [], help_categories: user.help_categories || [], cloc_competencies: user.cloc_competencies || [], password: undefined };
 }
 
 /* ---------- Necessidades ---------- */

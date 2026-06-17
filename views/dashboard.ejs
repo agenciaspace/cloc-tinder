@@ -31,6 +31,18 @@
   </a>
 <% } %>
 
+<% const hasMandala = !!(profile && profile.cloc_competencies && profile.cloc_competencies.length); %>
+<% if (!hasMandala) { %>
+  <a href="/mandala" class="complete-banner mandala-banner">
+    <span>🧭</span>
+    <div>
+      <strong>Descubra onde você está na mandala da CLOC.</strong>
+      Conte com o que você trabalha e o que curte — a gente te posiciona nas competências de Legal Ops e melhora seus matches.
+    </div>
+    <span class="complete-cta">Começar →</span>
+  </a>
+<% } %>
+
 <div class="profile-summary">
   <div class="profile-summary-card">
     <h3>Seu Perfil</h3>

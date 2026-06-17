@@ -1,0 +1,136 @@
+<%- include('partials/header') %>
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+<% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+<div class="profile-page">
+  <div class="onboarding-card">
+    <h2>🧭 Onde você está na mandala da CLOC</h2>
+    <p class="onboarding-sub">
+      A <strong>mandala da CLOC</strong> reúne as 12 competências do dia a dia de Legal Operations.
+      Conta pra gente <strong>com o que você trabalha</strong> e <strong>o que você curte</strong> —
+      a plataforma sugere as competências que combinam com você, e isso melhora os seus matches.
+    </p>
+  </div>
+
+  <div class="profile-card">
+    <form method="POST" action="/mandala">
+      <div class="form-group">
+        <label for="work">Com o que você trabalha? <span class="req">*</span></label>
+        <small class="field-hint">Cargo, área e o que faz no dia a dia. Ex.: "paralegal, cuido de contratos e da gestão de fornecedores".</small>
+        <textarea id="work" name="work" rows="3" placeholder="Descreva seu trabalho..."><%= profile.work || '' %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="interests">O que você gosta / quer desenvolver?</label>
+        <small class="field-hint">Temas que te empolgam ou áreas em que quer crescer. Ex.: "dados e dashboards, automação, dar treinamentos".</small>
+        <textarea id="interests" name="interests" rows="3" placeholder="Seus interesses..."><%= profile.interests || '' %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Suas competências na mandala <span class="req">*</span>
+          <span class="cat-counter" id="compCounter">0 selecionadas</span>
+        </label>
+        <small class="field-hint">
+          Escolha as que combinam com você. Conforme você escreve acima, marcamos as
+          <strong>sugeridas</strong> ✨ — confira e ajuste.
+        </small>
+        <button type="button" class="btn btn-secondary btn-sm" id="applySuggested" hidden>✨ Marcar sugeridas</button>
+
+        <div class="mandala-grid" id="mandalaGrid">
+          <% competencies.forEach(c => { %>
+            <label class="mandala-card" data-key="<%= c.key %>">
+              <input type="checkbox" name="competencies" value="<%= c.key %>"
+                <%= (profile.cloc_competencies && profile.cloc_competencies.includes(c.key)) ? 'checked' : '' %>>
+              <span class="mandala-badge">✨ sugerida</span>
+              <strong class="mandala-nome"><%= c.nome %></strong>
+              <span class="mandala-en"><%= c.en %></span>
+              <span class="mandala-desc"><%= c.desc %></span>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Salvar minha mandala</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    // Dados das competências (apenas key + keywords) para a sugestão no cliente.
+    const COMP = <%- JSON.stringify(competencies.map(c => ({ key: c.key, keywords: c.keywords }))) %>;
+    const grid = document.getElementById('mandalaGrid');
+    const counter = document.getElementById('compCounter');
+    const applyBtn = document.getElementById('applySuggested');
+    const work = document.getElementById('work');
+    const interests = document.getElementById('interests');
+    const form = grid.closest('form');
+    if (!grid || !form) return;
+
+    const cards = () => [...grid.querySelectorAll('.mandala-card')];
+    const boxes = () => [...grid.querySelectorAll('input[type=checkbox]')];
+
+    // Mesma normalização do servidor (config/mandala.js).
+    function normalize(text) {
+      return ' ' + String(text || '')
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim() + ' ';
+    }
+    function suggestedKeys() {
+      const hay = normalize((work ? work.value : '') + ' ' + (interests ? interests.value : ''));
+      return COMP
+        .map(c => ({ key: c.key, score: c.keywords.reduce((n, kw) => hay.includes(kw) ? n + 1 : n, 0) }))
+        .filter(s => s.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map(s => s.key);
+    }
+
+    function updateCounter() {
+      const n = boxes().filter(b => b.checked).length;
+      counter.textContent = n + ' selecionada' + (n === 1 ? '' : 's');
+      counter.classList.toggle('ok', n >= 1);
+      counter.classList.remove('warn');
+    }
+
+    let lastSuggested = [];
+    function refreshSuggestions() {
+      lastSuggested = suggestedKeys();
+      const set = new Set(lastSuggested);
+      cards().forEach(card => card.classList.toggle('suggested', set.has(card.dataset.key)));
+      const unchecked = lastSuggested.filter(k => {
+        const c = grid.querySelector('.mandala-card[data-key="' + k + '"] input');
+        return c && !c.checked;
+      });
+      applyBtn.hidden = unchecked.length === 0;
+      applyBtn.textContent = '✨ Marcar sugeridas (' + unchecked.length + ')';
+    }
+
+    applyBtn.addEventListener('click', () => {
+      new Set(lastSuggested).forEach(k => {
+        const c = grid.querySelector('.mandala-card[data-key="' + k + '"] input');
+        if (c) c.checked = true;
+      });
+      updateCounter(); refreshSuggestions();
+    });
+
+    grid.addEventListener('change', () => { updateCounter(); refreshSuggestions(); });
+    if (work) work.addEventListener('input', refreshSuggestions);
+    if (interests) interests.addEventListener('input', refreshSuggestions);
+
+    form.addEventListener('submit', (e) => {
+      if (boxes().filter(b => b.checked).length < 1) {
+        e.preventDefault();
+        counter.classList.add('warn');
+        grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alert('Escolha pelo menos uma competência da mandala em que você se encaixa.');
+      }
+    });
+
+    updateCounter();
+    refreshSuggestions();
+  })();
+</script>
+<%- include('partials/footer') %>

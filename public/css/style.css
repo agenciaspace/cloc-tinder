@@ -993,3 +993,42 @@ a { color: var(--coral-deep); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---- Mandala da CLOC ---- */
+.mandala-banner {
+  background: var(--teal-soft, #E3F3EE);
+  border-color: rgba(14,130,104,.28);
+}
+.mandala-banner .complete-cta { color: var(--teal-deep); }
+
+#applySuggested { margin: 4px 0 10px; }
+
+.mandala-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px;
+}
+@media (max-width: 600px) { .mandala-grid { grid-template-columns: 1fr; } }
+
+.mandala-card {
+  position: relative; display: flex; flex-direction: column; gap: 3px;
+  border: 1px solid var(--line); border-radius: 14px; padding: 14px 14px 14px 38px;
+  cursor: pointer; background: var(--card); transition: border-color .15s, background .15s, box-shadow .15s;
+}
+.mandala-card:hover { border-color: #E2D2BE; }
+.mandala-card input { position: absolute; top: 15px; left: 13px; width: 16px; height: 16px; accent-color: var(--coral); }
+.mandala-card .mandala-nome { font-weight: 700; color: var(--ink); font-size: 14.5px; }
+.mandala-card .mandala-en { font-size: 11.5px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .4px; }
+.mandala-card .mandala-desc { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; margin-top: 4px; }
+
+.mandala-card:has(input:checked) {
+  background: var(--ember-soft); border-color: rgba(255,91,78,.45); box-shadow: 0 0 0 1px rgba(255,91,78,.18) inset;
+}
+.mandala-card:has(input:checked) .mandala-nome { color: var(--coral-deep); }
+
+/* Badge "sugerida" — só aparece nos cards marcados como sugeridos pelo texto. */
+.mandala-badge {
+  position: absolute; top: 10px; right: 10px; display: none;
+  font-size: 10.5px; font-weight: 800; color: var(--teal-deep);
+  background: var(--teal-soft, #E3F3EE); border-radius: 999px; padding: 2px 8px;
+}
+.mandala-card.suggested { border-color: rgba(14,130,104,.4); }
+.mandala-card.suggested .mandala-badge { display: inline-block; }
