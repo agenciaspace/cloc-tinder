@@ -38,7 +38,7 @@
         <h3><%= need.title %></h3>
         <p><%= need.description ? need.description.substring(0, 120) + (need.description.length > 120 ? '...' : '') : '' %></p>
         <div class="need-card-footer">
-          <span>Por: <%= need.requester_name %></span>
+          <span>🔒 Anônimo</span>
           <a href="/needs/<%= need.id %>" class="btn btn-sm btn-primary">Ver &amp; Ajudar</a>
         </div>
       </div>

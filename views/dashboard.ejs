@@ -86,7 +86,7 @@
               <span class="tag tag-open">aberta</span>
             </div>
             <small>
-              <%= need.category %> &middot; <%= need.requester_name %>
+              <%= need.category %> &middot; 🔒 anônimo
               &middot; <a href="/needs/<%= need.id %>">Ver</a>
             </small>
           </div>
@@ -109,7 +109,7 @@
           <strong><%= match.need_title %></strong>
           <span class="tag tag-<%= match.status %>"><%= match.status %></span>
         </div>
-        <small><%= match.requester_name %> &middot; <%= match.need_category %></small>
+        <small><%= match.status === 'accepted' ? (match.requester_name || 'Membro do CLOC') : 'anônimo' %> &middot; <%= match.need_category %></small>
       </div>
     <% }) %>
   </div>

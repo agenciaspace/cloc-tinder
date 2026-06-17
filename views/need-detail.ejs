@@ -1,6 +1,7 @@
 <%- include('partials/header') %>
 <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
 <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+<% const canSeeRequester = userIsRequester || isAdmin; %>
 
 <div class="need-detail">
   <a href="/needs" class="btn btn-sm btn-secondary">← Voltar</a>
@@ -18,8 +19,15 @@
     <% } %>
 
     <div class="need-detail-meta">
-      <p><strong>Solicitante:</strong> <%= need.requester_name %></p>
-      <% if (need.requester_phone) { %>
+      <p>
+        <strong>Solicitante:</strong>
+        <% if (canSeeRequester) { %>
+          <%= need.requester_name || 'Membro do CLOC' %>
+        <% } else { %>
+          Membro do CLOC <span class="tag tag-sm tag-gray">🔒 anônimo</span>
+        <% } %>
+      </p>
+      <% if (canSeeRequester && need.requester_phone) { %>
         <p><strong>Contato:</strong> <%= need.requester_phone %></p>
       <% } %>
       <p><strong>Data:</strong> <%= new Date(need.created_at).toLocaleDateString('pt-BR') %></p>
@@ -27,19 +35,31 @@
     </div>
 
     <div class="need-detail-actions">
-      <% if (need.status === 'open') { %>
-        <% if (userIsRequester) { %>
+      <% if (userIsRequester) { %>
+        <% if (need.status === 'open') { %>
           <form method="POST" action="/needs/<%= need.id %>/close" style="display:inline">
             <button type="submit" class="btn btn-danger">Fechar Necessidade</button>
           </form>
         <% } else { %>
-          <% if (alreadyMatched) { %>
-            <p class="already-offered">Você já se ofereceu para ajudar!</p>
-          <% } else { %>
-            <form method="POST" action="/matches/<%= need.id %>/offer">
-              <button type="submit" class="btn btn-primary btn-lg">🤝 Oferecer Ajuda</button>
-            </form>
-          <% } %>
+          <p class="status-closed">Esta necessidade foi <%= need.status === 'matched' ? 'atendida' : 'fechada' %>.</p>
+        <% } %>
+
+      <% } else if (myMatch && myMatch.status === 'accepted') { %>
+        <div class="contact-revealed">
+          ✅ <strong>Match aceito!</strong> Fale com o solicitante:
+          <a class="btn btn-sm btn-primary" target="_blank" rel="noopener" href="<%= waLink(myMatch.requester_whatsapp) %>">💬 WhatsApp</a>
+        </div>
+
+      <% } else if (myMatch && myMatch.status === 'rejected') { %>
+        <p class="status-closed">Sua oferta não foi aceita desta vez. Continue ajudando! 🙌</p>
+
+      <% } else if (need.status === 'open') { %>
+        <% if (alreadyMatched) { %>
+          <p class="already-offered">Você já se ofereceu — aguardando o solicitante aceitar. O contato é liberado quando ele aceitar.</p>
+        <% } else { %>
+          <form method="POST" action="/matches/<%= need.id %>/offer">
+            <button type="submit" class="btn btn-primary btn-lg">🤝 Oferecer Ajuda</button>
+          </form>
         <% } %>
       <% } else { %>
         <p class="status-closed">Esta necessidade foi <%= need.status === 'matched' ? 'atendida' : 'fechada' %>.</p>
@@ -47,29 +67,43 @@
     </div>
   </div>
 
-  <% if (need.status === 'open' && helpers.length > 0) { %>
+  <%# Dono: ofertas recebidas, com aceitar/recusar e contato quando aceito %>
+  <% if (userIsRequester) { %>
     <div class="card" style="margin-top: 24px;">
-      <div class="card-header">
-        <h2>⚡ Matches Potenciais</h2>
-      </div>
+      <div class="card-header"><h2>🤝 Ofertas de ajuda<% if (offers.length) { %> (<%= offers.length %>)<% } %></h2></div>
       <div class="card-body">
-        <p>Pessoas com perfil compatível para esta necessidade:</p>
-        <div class="helpers-list">
-          <% helpers.forEach(helper => { %>
-            <div class="helper-item">
-              <div class="helper-avatar <%= helper.photo_url ? 'avatar-img' : '' %>"<%= helper.photo_url ? ` style="background-image:url('${helper.photo_url}')"` : '' %>><%= helper.photo_url ? '' : helper.name.charAt(0) %></div>
-              <div class="helper-info">
-                <strong><%= helper.name %></strong>
-                <div>
-                  <% (helper.skills || []).slice(0, 3).forEach(s => { %>
-                    <span class="tag tag-sm tag-blue"><%= s %></span>
-                  <% }) %>
+        <% if (!offers.length) { %>
+          <p class="empty-state">Ainda ninguém se ofereceu. Assim que alguém oferecer, aparece aqui pra você aceitar.</p>
+        <% } else { %>
+          <div class="helpers-list">
+            <% offers.forEach(o => { %>
+              <div class="helper-item">
+                <div class="helper-avatar <%= o.helper_photo ? 'avatar-img' : '' %>"<%= o.helper_photo ? ` style="background-image:url('${o.helper_photo}')"` : '' %>><%= o.helper_photo ? '' : (o.helper_name || '?').charAt(0) %></div>
+                <div class="helper-info">
+                  <strong><%= o.helper_name %></strong>
+                  <div class="tags">
+                    <% (o.helper_skills || []).slice(0, 3).forEach(s => { %><span class="tag tag-sm tag-blue"><%= s %></span><% }) %>
+                  </div>
+                  <% if (o.status === 'accepted') { %>
+                    <div class="contact-revealed" style="margin-top:8px">
+                      ✅ Aceito —
+                      <a class="btn btn-sm btn-primary" target="_blank" rel="noopener" href="<%= waLink(o.helper_phone) %>">💬 WhatsApp</a>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="row-actions">
+                  <% if (o.status === 'pending' && need.status === 'open') { %>
+                    <form method="POST" action="/matches/<%= o.id %>/accept"><button class="btn btn-sm btn-primary">✓ Aceitar</button></form>
+                    <form method="POST" action="/matches/<%= o.id %>/reject"><button class="btn btn-sm btn-danger">✕ Recusar</button></form>
+                  <% } else if (o.status === 'rejected') { %>
+                    <span class="tag tag-gray">recusado</span>
+                  <% } %>
+                  <a href="/user/<%= o.helper_id %>" class="btn btn-sm btn-secondary">Perfil</a>
                 </div>
               </div>
-              <a href="/user/<%= helper.id %>" class="btn btn-sm btn-secondary">Ver Perfil</a>
-            </div>
-          <% }) %>
-        </div>
+            <% }) %>
+          </div>
+        <% } %>
       </div>
     </div>
   <% } %>

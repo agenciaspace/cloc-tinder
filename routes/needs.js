@@ -58,15 +58,21 @@ router.get('/needs/:id', requireAuth, async (req, res, next) => {
       req.session.error = 'Necessidade não encontrada.';
       return res.redirect('/needs');
     }
-    const [helpers, myMatches] = await Promise.all([
+    const userIsRequester = need.requester_id === req.session.user.id;
+    const [helpers, myMatches, offers] = await Promise.all([
       db.getPotentialHelpers(need.category, need.requester_id),
       db.getMatchesByHelperId(req.session.user.id),
+      userIsRequester ? db.getMatchesByNeedId(need.id) : Promise.resolve([]),
     ]);
+    const myMatch = myMatches.find(m => m.need_id === need.id) || null;
     res.render('need-detail', {
       need,
       helpers,
-      alreadyMatched: myMatches.some(m => m.need_id === need.id),
-      userIsRequester: need.requester_id === req.session.user.id
+      offers,
+      myMatch,
+      alreadyMatched: !!myMatch,
+      userIsRequester,
+      isAdmin: res.locals.isAdmin,
     });
   } catch (err) { next(err); }
 });

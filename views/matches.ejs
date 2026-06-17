@@ -22,23 +22,20 @@
         <h3><%= match.need_title %></h3>
         <p><%= match.need_description ? match.need_description.substring(0, 100) + (match.need_description.length > 100 ? '...' : '') : '' %></p>
         <div class="match-card-meta">
-          <span>Solicitante: <%= match.requester_name %></span>
-          <span>Status: <%= match.need_status %></span>
+          <% if (match.status === 'accepted') { %>
+            <span>Solicitante: <%= match.requester_name || 'Membro do CLOC' %></span>
+          <% } else { %>
+            <span>Solicitante: anônimo 🔒</span>
+          <% } %>
         </div>
         <div class="match-card-actions">
           <% if (match.status === 'pending') { %>
-            <% if (match.need_status === 'open') { %>
-              <form method="POST" action="/matches/<%= match.id %>/accept" style="display:inline">
-                <button type="submit" class="btn btn-sm btn-primary">✓ Aceitar</button>
-              </form>
-              <form method="POST" action="/matches/<%= match.id %>/reject" style="display:inline">
-                <button type="submit" class="btn btn-sm btn-danger">✕ Recusar</button>
-              </form>
-            <% } else { %>
-              <span class="tag tag-gray">Aguardando</span>
-            <% } %>
+            <span class="tag tag-pending">⏳ Aguardando o solicitante aceitar</span>
           <% } else if (match.status === 'accepted') { %>
-            <span class="tag tag-green">✅ Match confirmado</span>
+            <span class="tag tag-green">✅ Aceito</span>
+            <% if (match.requester_whatsapp) { %>
+              <a class="btn btn-sm btn-primary" target="_blank" rel="noopener" href="<%= waLink(match.requester_whatsapp) %>">💬 Falar no WhatsApp</a>
+            <% } %>
           <% } else { %>
             <span class="tag tag-gray">Recusado</span>
           <% } %>

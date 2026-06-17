@@ -5,6 +5,7 @@ const path = require('path');
 const waConfig = require('./config/whatsapp');
 const access = require('./services/access');
 const socials = require('./services/socials');
+const phoneUtil = require('./services/phone');
 const db = require('./models/db');
 const whatsapp = require('./services/whatsapp');
 
@@ -41,6 +42,10 @@ app.use(async (req, res, next) => {
     isConfigured: waConfig.isConfigured,
   };
   res.locals.socialUrl = socials.socialUrl;
+  res.locals.waLink = (p) => {
+    const c = phoneUtil.canonical(p) || phoneUtil.digitsOnly(p);
+    return c ? 'https://wa.me/' + c : '#';
+  };
 
   // Carrega a linha atual do usuário para computar admin/banido em tempo real.
   let row = null;

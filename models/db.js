@@ -110,14 +110,37 @@ async function createMatch(needId, helperId) {
 
 async function getMatchesByHelperId(helperId) {
   const rows = unwrap(await sb.from('matches')
-    .select('id, need_id, helper_id, status, needs(title, description, category, requester_name, status)')
+    .select('id, need_id, helper_id, status, needs(title, description, category, requester_name, requester_id, requester_phone, status)')
     .eq('helper_id', Number(helperId))
     .order('created_at', { ascending: false }));
+  // Contato do solicitante só para matches ACEITOS (anônimo até lá).
+  const ids = [...new Set(rows.filter(r => r.status === 'accepted' && r.needs?.requester_id).map(r => r.needs.requester_id))];
+  let phones = {};
+  if (ids.length) {
+    const us = unwrap(await sb.from('users').select('id, phone').in('id', ids));
+    phones = Object.fromEntries(us.map(u => [u.id, u.phone]));
+  }
   return rows.map(r => ({
     id: r.id, need_id: r.need_id, helper_id: r.helper_id, status: r.status,
     need_title: r.needs?.title, need_description: r.needs?.description,
     need_category: r.needs?.category, requester_name: r.needs?.requester_name,
     need_status: r.needs?.status,
+    requester_whatsapp: r.status === 'accepted'
+      ? (r.needs?.requester_phone || phones[r.needs?.requester_id] || '') : '',
+  }));
+}
+
+// Ofertas recebidas em uma necessidade (para o dono revisar/aceitar). Inclui contato do voluntário.
+async function getMatchesByNeedId(needId) {
+  const rows = unwrap(await sb.from('matches')
+    .select('id, status, created_at, helper:users(id, name, photo_url, phone, skills)')
+    .eq('need_id', Number(needId))
+    .order('created_at', { ascending: true }));
+  return rows.map(r => ({
+    id: r.id, status: r.status,
+    helper_id: r.helper?.id, helper_name: r.helper?.name,
+    helper_photo: r.helper?.photo_url, helper_phone: r.helper?.phone,
+    helper_skills: r.helper?.skills || [],
   }));
 }
 
@@ -325,7 +348,7 @@ module.exports = {
   getAllNeeds, getAllMatches, deleteNeed, getStats,
   savePushSubscription, getPushSubscriptionsByUser, deletePushSubscription,
   createNeed, getOpenNeeds, getNeedsByUserId, getNeedById, updateNeed,
-  createMatch, getMatchesByHelperId, getMatchById, updateMatch, getPotentialHelpers,
+  createMatch, getMatchesByHelperId, getMatchesByNeedId, getMatchById, updateMatch, getPotentialHelpers,
   createNotification, getNotificationsByUserId, markNotificationsRead, getUnreadNotificationCount,
   searchNeeds,
 };
