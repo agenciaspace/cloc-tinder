@@ -52,8 +52,11 @@
       <% const myComps = clocCompetencies(profile.cloc_competencies); %>
       <% if (myComps.length) { %>
         <p><strong>🧭 Mandala da CLOC:</strong></p>
-        <div class="tags" style="margin-top:6px;">
-          <% myComps.forEach(c => { %><span class="tag tag-coral"><%= c.nome %></span><% }) %>
+        <div class="profile-mandala">
+          <%- include('partials/mandala-wheel', { selectedKeys: profile.cloc_competencies, compact: true }) %>
+          <div class="tags">
+            <% myComps.forEach(c => { %><span class="tag tag-coral"><%= c.nome %></span><% }) %>
+          </div>
         </div>
         <a href="/mandala" class="mandala-edit-link">ajustar →</a>
       <% } %>

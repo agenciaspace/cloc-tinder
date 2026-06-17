@@ -5,6 +5,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const config = require('../config/whatsapp');
 const phone = require('../services/phone');
+const mandala = require('../config/mandala');
 
 const sb = createClient(
   config.supabase.url,
@@ -152,14 +153,35 @@ async function updateMatch(id, status) {
   unwrap(await sb.from('matches').update({ status }).eq('id', Number(id)));
 }
 
+// Potenciais ajudantes para uma necessidade. Combina duas dimensões:
+//  - categorias de ajuda declaradas (help_categories) — sinal forte (+2)
+//  - categorias derivadas da mandala da CLOC (cloc_competencies) — sinal de
+//    afinidade (+1), que amplia o alcance pra além do que a pessoa marcou.
+// Retorna ordenado por relevância, com matchScore e matchVia para a UI.
 async function getPotentialHelpers(needCategory, excludeUserId) {
   const all = unwrap(await sb.from('users').select('*').eq('available', 1).neq('id', Number(excludeUserId)));
   return all
-    .filter(u => {
+    .map(u => {
       const cats = u.help_categories || [];
-      return cats.includes(needCategory) || cats.includes('*');
+      const comps = u.cloc_competencies || [];
+      const mandalaCats = mandala.categoriesFromCompetencies(comps);
+      const wildcard = cats.includes('*');
+      const byCategory = wildcard || cats.includes(needCategory);
+      const byMandala = mandalaCats.includes(needCategory);
+      let matchScore = 0;
+      if (byCategory) matchScore += 2;
+      if (byMandala) matchScore += 1;
+      const matchVia = byCategory && byMandala ? 'ambos'
+        : byCategory ? (wildcard && !cats.includes(needCategory) ? 'todas' : 'categoria')
+        : byMandala ? 'mandala' : null;
+      return {
+        ...u,
+        skills: u.skills || [], help_categories: cats, cloc_competencies: comps,
+        matchScore, matchVia,
+      };
     })
-    .map(u => ({ ...u, skills: u.skills || [], help_categories: u.help_categories || [] }));
+    .filter(u => u.matchScore > 0)
+    .sort((a, b) => b.matchScore - a.matchScore || String(a.name || '').localeCompare(String(b.name || '')));
 }
 
 /* ---------- Notificações ---------- */

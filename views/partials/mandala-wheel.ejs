@@ -5,6 +5,7 @@
        - selectedKeys: array de keys destacadas (passado no include) */
   var all = (typeof clocMandala !== 'undefined' && clocMandala) ? clocMandala : [];
   var sel = new Set(selectedKeys || []);
+  var compact = (typeof compact !== 'undefined') ? compact : false;
   var cx = 380, cy = 270, ir = 80, orBase = 150, orSel = 162, labelR = 178;
 
   function polar(r, deg) {
@@ -31,11 +32,11 @@
     return [l1, l2];
   }
 %>
-<svg class="mandala-wheel" viewBox="0 0 760 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mandala CLOC Core 12 com as competências destacadas">
+<svg class="mandala-wheel <%= compact ? 'mw-compact' : '' %>" viewBox="<%= compact ? '210 100 340 340' : '0 0 760 540' %>" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mandala CLOC Core 12 com as competências destacadas">
   <% all.forEach(function (c, i) { var on = sel.has(c.key); %>
-    <path d="<%= wedge(i, on ? orSel : orBase) %>" class="mw-seg <%= on ? 'on' : 'off' %>"></path>
+    <path d="<%= wedge(i, on ? orSel : orBase) %>" class="mw-seg <%= on ? 'on' : 'off' %>"><title><%= c.nome %> — <%= c.en %><%= on ? ' (competência selecionada)' : '' %><%= c.desc ? '\n' + c.desc : '' %></title></path>
   <% }) %>
-  <% all.forEach(function (c, i) {
+  <% if (!compact) { all.forEach(function (c, i) {
        var on = sel.has(c.key);
        var p = polar(labelR, i * 30 + 15), lx = p[0], ly = p[1];
        var anchor = lx > cx + 8 ? 'start' : (lx < cx - 8 ? 'end' : 'middle');
@@ -43,7 +44,11 @@
        var dy0 = lines.length > 1 ? -1 : 4;
   %>
     <text x="<%= lx.toFixed(1) %>" y="<%= ly.toFixed(1) %>" text-anchor="<%= anchor %>" class="mw-label <%= on ? 'on' : 'off' %>"><% lines.forEach(function (ln, li) { %><tspan x="<%= lx.toFixed(1) %>" dy="<%= li === 0 ? dy0 : 13 %>"><%= ln %></tspan><% }) %></text>
-  <% }) %>
+  <% }); } %>
   <circle cx="<%= cx %>" cy="<%= cy %>" r="<%= ir - 8 %>" class="mw-center"></circle>
+  <% if (!compact) { %>
   <text x="<%= cx %>" y="<%= cy - 6 %>" text-anchor="middle" class="mw-center-title"><tspan x="<%= cx %>">CLOC</tspan><tspan x="<%= cx %>" dy="17">Core 12</tspan></text>
+  <% } else { %>
+  <text x="<%= cx %>" y="<%= cy + 4 %>" text-anchor="middle" class="mw-center-mini">CLOC 12</text>
+  <% } %>
 </svg>

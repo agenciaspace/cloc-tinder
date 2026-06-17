@@ -107,5 +107,48 @@
       </div>
     </div>
   <% } %>
+
+  <%# Sugestão de membros que combinam — categoria de ajuda + mandala da CLOC %>
+  <% if (canSeeRequester && need.status === 'open') {
+       const offeredIds = new Set((offers || []).map(o => o.helper_id));
+       const suggestions = (helpers || []).filter(h => !offeredIds.has(h.id)).slice(0, 12);
+       const REASON = {
+         categoria: 'combina pela categoria',
+         mandala: 'afinidade pela mandala',
+         ambos: 'categoria + mandala',
+         todas: 'ajuda em todas as áreas',
+       };
+  %>
+    <div class="card" style="margin-top: 24px;">
+      <div class="card-header"><h2>✨ Quem pode ajudar<% if (suggestions.length) { %> (<%= suggestions.length %>)<% } %></h2></div>
+      <div class="card-body">
+        <% if (!suggestions.length) { %>
+          <p class="empty-state">Ainda não encontramos membros que combinem com essa categoria. Compartilhe no grupo pra alcançar mais gente! 🙌</p>
+        <% } else { %>
+          <p class="suggestions-hint">Membros disponíveis ordenados por relevância — pela categoria da necessidade e/ou pela mandala da CLOC.</p>
+          <div class="helpers-list">
+            <% suggestions.forEach(h => { const hc = clocCompetencies(h.cloc_competencies); %>
+              <div class="helper-item">
+                <div class="helper-avatar <%= h.photo_url ? 'avatar-img' : '' %>"<%= h.photo_url ? ` style="background-image:url('${h.photo_url}')"` : '' %>><%= h.photo_url ? '' : (h.name || '?').charAt(0) %></div>
+                <div class="helper-info">
+                  <strong><%= h.name %></strong>
+                  <span class="match-badge match-<%= h.matchVia %>"><%= REASON[h.matchVia] || 'combina' %></span>
+                  <% if ((h.skills || []).length || hc.length) { %>
+                    <div class="tags">
+                      <% (h.skills || []).slice(0, 3).forEach(s => { %><span class="tag tag-sm tag-blue"><%= s %></span><% }) %>
+                      <% hc.slice(0, 3).forEach(c => { %><span class="tag tag-sm tag-coral"><%= c.nome %></span><% }) %>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="row-actions">
+                  <a href="/user/<%= h.id %>" class="btn btn-sm btn-secondary">Ver perfil</a>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
 </div>
 <%- include('partials/footer') %>

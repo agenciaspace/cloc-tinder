@@ -99,6 +99,32 @@ function suggestKeys(text) {
   return scored.map((s) => s.key);
 }
 
+// Ponte entre a mandala (competências de Legal Ops) e as categorias genéricas
+// de ajuda usadas no matching. Cada competência aponta para as categorias de
+// ajuda mais próximas — assim preencher a mandala enriquece o match.
+const CATEGORY_MAP = {
+  planejamento_estrategico:    ['empreendedorismo', 'carreira', 'administrativo'],
+  tecnologia:                  ['tecnologia'],
+  treinamento_desenvolvimento: ['educacao', 'carreira', 'idiomas'],
+  inteligencia_dados:          ['tecnologia', 'administrativo'],
+  gestao_financeira:           ['financeiro'],
+  gestao_fornecedores:         ['administrativo', 'empreendedorismo'],
+  governanca_informacao:       ['juridico', 'tecnologia'],
+  gestao_conhecimento:         ['educacao', 'administrativo'],
+  organizacao_pessoas:         ['bem-estar', 'carreira', 'administrativo'],
+  operacoes_pratica:           ['juridico', 'administrativo'],
+  gestao_projetos:             ['administrativo', 'empreendedorismo'],
+  modelos_entrega:             ['administrativo', 'empreendedorismo'],
+};
+
+// A partir das keys salvas, devolve as categorias de ajuda implicadas (únicas).
+function categoriesFromCompetencies(keys) {
+  if (!Array.isArray(keys)) return [];
+  const out = new Set();
+  keys.forEach((k) => (CATEGORY_MAP[k] || []).forEach((c) => out.add(c)));
+  return [...out];
+}
+
 // Mapa key -> competência, para resolver rótulos salvos no perfil.
 const BY_KEY = COMPETENCIES.reduce((m, c) => { m[c.key] = c; return m; }, {});
 
@@ -110,4 +136,7 @@ function competenciesFor(keys) {
   return COMPETENCIES.filter((c) => set.has(c.key));
 }
 
-module.exports = { COMPETENCIES, BY_KEY, suggestKeys, normalize, competenciesFor };
+module.exports = {
+  COMPETENCIES, BY_KEY, CATEGORY_MAP,
+  suggestKeys, normalize, competenciesFor, categoriesFromCompetencies,
+};

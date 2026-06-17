@@ -96,6 +96,8 @@ router.get('/api/matches/potential/:needId', requireAuth, async (req, res, next)
     res.json(helpers.map(h => ({
       id: h.id, name: h.name, bio: h.bio,
       skills: h.skills || [], help_categories: h.help_categories || [],
+      cloc_competencies: h.cloc_competencies || [],
+      matchScore: h.matchScore, matchVia: h.matchVia,
     })));
   } catch (err) { next(err); }
 });
