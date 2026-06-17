@@ -20,7 +20,8 @@
 
     <form method="POST" action="/profile" enctype="multipart/form-data">
       <div class="form-group photo-field">
-        <label for="photo">Foto de perfil</label>
+        <label for="photo">Foto de perfil <span class="req">*</span></label>
+        <small class="field-hint">Uma foto sua deixa o CLOC-Tinder mais pessoal e gera mais confiança nos matches.</small>
         <div class="photo-upload">
           <span class="photo-preview <%= profile.photo_url ? 'has-img' : '' %>" id="photoPreview"<%= profile.photo_url ? ` style="background-image:url('${profile.photo_url}')"` : '' %>><%= profile.photo_url ? '' : '🙂' %></span>
           <label class="photo-btn" for="photo"><%= profile.photo_url ? 'Trocar foto' : 'Escolher foto' %></label>
@@ -98,6 +99,14 @@
     }
     grid.addEventListener('change', update);
     form.addEventListener('submit', (e) => {
+      // Foto obrigatória: vale a foto já existente (preview com .has-img) ou uma recém-escolhida.
+      const preview = document.getElementById('photoPreview');
+      if (preview && !preview.classList.contains('has-img')) {
+        e.preventDefault();
+        document.querySelector('.photo-field').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alert('Adicione uma foto de perfil — ela deixa o CLOC-Tinder mais pessoal.');
+        return;
+      }
       if (boxes().filter(b => b.checked).length < 3) {
         e.preventDefault();
         update();

@@ -49,6 +49,14 @@ router.post('/profile', requireAuth, uploadPhoto, async (req, res, next) => {
       return res.redirect('/profile/edit');
     }
 
+    // Foto de perfil é obrigatória — deixa o sistema mais pessoal e gera confiança.
+    // Aceita uma foto enviada agora OU uma que o perfil já tenha (caso de edição).
+    const existing = await db.getProfileByUserId(req.session.user.id);
+    if (!req.file && !(existing && existing.photo_url)) {
+      req.session.error = 'Adicione uma foto de perfil — ela deixa o CLOC-Tinder mais pessoal.';
+      return res.redirect('/profile/edit');
+    }
+
     const fields = {
       name,
       phone: phone || '',
