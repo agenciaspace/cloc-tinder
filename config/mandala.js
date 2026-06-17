@@ -11,9 +11,26 @@
    Fonte do modelo: cloc.org (Core 12 Functions of Legal Operations).
    --------------------------------------------------------------------------- */
 
+// Ordem segue a mandala oficial (versão BR). As `key` são identificadores
+// estáveis (já salvos em perfis) — não mudam mesmo que o rótulo PT-BR mude.
 const COMPETENCIES = [
   {
-    key: 'inteligencia_dados', nome: 'Inteligência de Dados', en: 'Business Intelligence',
+    key: 'planejamento_estrategico', nome: 'Planejamento Estratégico', en: 'Strategic Planning',
+    desc: 'Definir visão, metas e roadmap do legal ops alinhados à estratégia do negócio.',
+    keywords: ['estrategia', 'planejamento', 'visao', 'meta', ' okr', 'roadmap', 'alinhamento', 'negocio', 'prioridade', 'objetivo', 'planejamento estrategico'],
+  },
+  {
+    key: 'tecnologia', nome: 'Tecnologia', en: 'Technology',
+    desc: 'Seleção, implementação e gestão de ferramentas e sistemas jurídicos.',
+    keywords: ['tecnologia', 'ferramenta', 'sistema', 'software', ' ti ', 'legaltech', ' ia ', 'inteligencia artificial', 'integracao', 'implementacao', 'plataforma', 'low-code', 'desenvolvedor', 'programacao'],
+  },
+  {
+    key: 'treinamento_desenvolvimento', nome: 'Treinamento e Capacitação', en: 'Training & Development',
+    desc: 'Capacitar o time e os clientes internos; desenvolver competências e cultura de aprendizado.',
+    keywords: ['treinamento', 'capacitacao', 'desenvolvimento', 'aprendizado', 'curso', 'mentoria', 'onboarding', 'educacao', 'formacao', 'workshop', 'palestra', 'ensino'],
+  },
+  {
+    key: 'inteligencia_dados', nome: 'Inteligência de Negócios', en: 'Business Intelligence',
     desc: 'Métricas, relatórios e dashboards que dão visibilidade ao jurídico e embasam decisões.',
     keywords: ['dado', 'dados', 'metrica', 'metricas', 'indicador', 'kpi', 'relatorio', 'dashboard', 'analise', 'analytics', ' bi ', 'power bi', 'planilha', 'estatistica', 'numero', 'visualizacao'],
   },
@@ -23,8 +40,8 @@ const COMPETENCIES = [
     keywords: ['financeiro', 'orcamento', 'budget', 'custo', 'gasto', 'faturamento', 'previsao', 'financas', 'contabil', 'e-billing', 'billing', 'despesa', 'honorario', 'pagamento'],
   },
   {
-    key: 'gestao_fornecedores', nome: 'Gestão de Escritórios e Fornecedores', en: 'Firm & Vendor Management',
-    desc: 'Seleção, gestão e avaliação de escritórios externos (outside counsel) e fornecedores.',
+    key: 'gestao_fornecedores', nome: 'Gestão de Parceiros e Fornecedores', en: 'Firm & Vendor Management',
+    desc: 'Seleção, gestão e avaliação de parceiros, fornecedores e escritórios externos (outside counsel).',
     keywords: ['fornecedor', 'escritorio', 'outside counsel', 'banca', 'terceiro', 'vendor', 'parceiro', 'rfp', 'sourcing', 'contratacao de escritorio', 'avaliacao de banca'],
   },
   {
@@ -38,12 +55,12 @@ const COMPETENCIES = [
     keywords: ['conhecimento', 'modelo', 'template', 'precedente', 'playbook', 'base de conhecimento', 'wiki', 'repositorio', 'clausula', 'minuta', 'padronizacao de documentos'],
   },
   {
-    key: 'organizacao_pessoas', nome: 'Organização, Pessoas e Bem-estar', en: 'Organization Optimization & Health',
+    key: 'organizacao_pessoas', nome: 'Otimização e Saúde da Organização', en: 'Organization Optimization & Health',
     desc: 'Estrutura do time, papéis, cultura, saúde e desenvolvimento organizacional.',
     keywords: ['pessoas', 'time', 'equipe', 'cultura', ' rh ', 'bem-estar', 'bem estar', 'estrutura', 'organizacao', 'lideranca', 'gestao de pessoas', 'clima', 'engajamento'],
   },
   {
-    key: 'operacoes_pratica', nome: 'Operações da Prática Jurídica', en: 'Practice Operations',
+    key: 'operacoes_pratica', nome: 'Operações Práticas', en: 'Practice Operations',
     desc: 'Suporte ao dia a dia: fluxos de trabalho, contencioso, contratos e gestão de demandas.',
     keywords: ['contrato', 'contencioso', 'materia', 'processo', 'fluxo', 'demanda', 'atendimento', 'juridico', 'paralegal', 'gestao de contratos', ' clm ', 'workflow', 'societario', 'trabalhista'],
   },
@@ -56,21 +73,6 @@ const COMPETENCIES = [
     key: 'modelos_entrega', nome: 'Modelos de Entrega de Serviço', en: 'Service Delivery Models',
     desc: 'Como o trabalho jurídico é entregue: insourcing, outsourcing, automação e autoatendimento.',
     keywords: ['servico', 'automacao', ' alsp', 'insourcing', 'outsourcing', 'autoatendimento', 'self-service', 'self service', 'eficiencia', 'processo padrao', 'centro de servicos', 'no-code'],
-  },
-  {
-    key: 'planejamento_estrategico', nome: 'Planejamento Estratégico', en: 'Strategic Planning',
-    desc: 'Definir visão, metas e roadmap do legal ops alinhados à estratégia do negócio.',
-    keywords: ['estrategia', 'planejamento', 'visao', 'meta', ' okr', 'roadmap', 'alinhamento', 'negocio', 'prioridade', 'objetivo', 'planejamento estrategico'],
-  },
-  {
-    key: 'tecnologia', nome: 'Tecnologia', en: 'Technology',
-    desc: 'Seleção, implementação e gestão de ferramentas e sistemas jurídicos.',
-    keywords: ['tecnologia', 'ferramenta', 'sistema', 'software', ' ti ', 'legaltech', ' ia ', 'inteligencia artificial', 'integracao', 'implementacao', 'plataforma', 'low-code', 'desenvolvedor', 'programacao'],
-  },
-  {
-    key: 'treinamento_desenvolvimento', nome: 'Treinamento e Desenvolvimento', en: 'Training & Development',
-    desc: 'Capacitar o time e os clientes internos; desenvolver competências e cultura de aprendizado.',
-    keywords: ['treinamento', 'capacitacao', 'desenvolvimento', 'aprendizado', 'curso', 'mentoria', 'onboarding', 'educacao', 'formacao', 'workshop', 'palestra', 'ensino'],
   },
 ];
 
