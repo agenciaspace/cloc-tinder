@@ -104,6 +104,25 @@ app.get('/api/cron/sync', async (req, res) => {
   res.status(result.ok ? 200 : 500).json(result);
 });
 
+// Digest diário das necessidades abertas, postado no grupo (via cron).
+// ?dry=1 apenas compõe o texto e devolve, sem postar (para teste seguro).
+app.get('/api/cron/digest', async (req, res) => {
+  const auth = req.get('authorization') || '';
+  const ok = waConfig.cronSecret &&
+    (auth === `Bearer ${waConfig.cronSecret}` || req.query.secret === waConfig.cronSecret);
+  if (!ok) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    if (req.query.dry) {
+      const needs = await db.getOpenNeeds();
+      return res.json({ ok: true, dry: true, preview: whatsapp.buildDigest(needs) || '(sem necessidades — não postaria)' });
+    }
+    const result = await whatsapp.sendDigest();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // Tratador de erros — evita derrubar a função serverless.
 app.use((err, req, res, next) => {
   console.error('[erro]', err);

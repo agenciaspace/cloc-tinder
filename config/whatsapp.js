@@ -46,6 +46,7 @@ const config = {
   },
 
   // UX / admin
+  appUrl: (env.APP_URL || 'https://cloc-tinder.vercel.app').replace(/\/+$/, ''),
   groupName: env.WA_GROUP_NAME || 'CLOC bate-papo',
   inviteLink: env.WA_GROUP_INVITE_LINK || '',
   adminEmail: (env.ADMIN_EMAIL || '').toLowerCase(),

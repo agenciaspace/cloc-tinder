@@ -110,6 +110,35 @@ async function sendCode(rawNumber, code) {
   return call('/send/text', { method: 'POST', body: { number, text } });
 }
 
+// Posta uma mensagem no grupo configurado.
+async function sendGroupMessage(text) {
+  return call('/send/text', { method: 'POST', body: { number: config.groupJid, text } });
+}
+
+// Monta o texto do digest (sem identificar quem pediu). Retorna '' se não há nada a postar.
+function buildDigest(needs) {
+  if (!needs || !needs.length) return '';
+  const cap = (s) => String(s || 'outro').charAt(0).toUpperCase() + String(s || 'outro').slice(1);
+  const top = needs.slice(0, 10);
+  const lines = top.map((n, i) => `${i + 1}. [${cap(n.category)}] ${n.title}`);
+  const extra = needs.length > top.length ? `\n…e mais ${needs.length - top.length}.` : '';
+  return `☀️ *Necessidades abertas no CLOC-Tinder*\n\n${lines.join('\n')}${extra}\n\n` +
+    `Pode ajudar em alguma? Entre e ofereça ajuda 👉 ${config.appUrl}`;
+}
+
+// Compila e posta o digest das necessidades abertas. Não posta se não houver nenhuma.
+async function sendDigest() {
+  const needs = await db.getOpenNeeds();
+  const text = buildDigest(needs);
+  if (!text) {
+    console.log('[digest] sem necessidades abertas — nada postado.');
+    return { ok: true, posted: false, count: 0 };
+  }
+  await sendGroupMessage(text);
+  console.log(`[digest] postado — ${Math.min(needs.length, 10)} de ${needs.length} necessidades.`);
+  return { ok: true, posted: true, count: Math.min(needs.length, 10), total: needs.length };
+}
+
 // Gera um código numérico de N dígitos (sem zeros à esquerda perdidos).
 function generateCode() {
   const n = config.otp.length;
@@ -157,4 +186,5 @@ function startScheduler() {
 module.exports = {
   listGroups, fetchGroupMembers, sendCode, generateCode,
   syncGroupMembers, startScheduler,
+  sendGroupMessage, buildDigest, sendDigest,
 };
