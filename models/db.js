@@ -193,8 +193,10 @@ async function searchNeeds(query) {
 /* ---------- Membros do grupo WhatsApp (cache de autorização) ---------- */
 
 async function replaceGroupMembers(members) {
+  const syncedAt = new Date().toISOString();
   const rows = members.filter(m => m.phone).map(m => ({
     phone: m.phone, jid: m.jid || '', name: m.name || '', photo: m.photo || '', is_admin: m.isAdmin ? 1 : 0,
+    synced_at: syncedAt, // explícito: o upsert precisa atualizar a data (default now() só vale no insert)
   }));
   if (!rows.length) return;
   // Upsert primeiro (a tabela nunca fica vazia), depois remove quem saiu do grupo.

@@ -40,7 +40,7 @@
       <p>
         <strong><%= memberStats.count %></strong> membros autorizados ·
         <% if (memberStats.lastSyncedAt) { %>
-          última sincronização <%= new Date(memberStats.lastSyncedAt + ' UTC').toLocaleString('pt-BR') %>
+          última sincronização <%= new Date(memberStats.lastSyncedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) %>
         <% } else { %>
           ainda não sincronizado
         <% } %>

@@ -11,6 +11,20 @@ const db = require('../models/db');
 
 const TIMEOUT_MS = 15000;
 
+// Datas (America/Sao_Paulo, YYYY-MM-DD) em que NÃO postamos o digest automático
+// — usado quando já houve um comunicado manual no grupo naquele dia, pra não
+// duplicar. Auto-expira: passada a data, a verificação simplesmente não casa.
+// Pode-se acrescentar datas via env DIGEST_SKIP_DATES (lista separada por vírgula).
+const DIGEST_SKIP_DATES = new Set([
+  '2026-06-17', // comunicado manual de novidades/boas-vindas enviado neste dia
+  ...(process.env.DIGEST_SKIP_DATES || '').split(',').map((s) => s.trim()).filter(Boolean),
+]);
+
+// Data de hoje no fuso de Brasília, no formato YYYY-MM-DD.
+function todayInBRT() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+}
+
 // Chamada REST genérica ao uazapi, já com o header de token.
 async function call(pathname, { method = 'POST', body } = {}) {
   if (!config.baseUrl || !config.token) {
@@ -128,6 +142,11 @@ function buildDigest(needs) {
 
 // Compila e posta o digest das necessidades abertas. Não posta se não houver nenhuma.
 async function sendDigest() {
+  const today = todayInBRT();
+  if (DIGEST_SKIP_DATES.has(today)) {
+    console.log(`[digest] ${today} está na lista de skip — comunicado manual já enviado, nada postado.`);
+    return { ok: true, posted: false, skipped: today, count: 0 };
+  }
   const needs = await db.getOpenNeeds();
   const text = buildDigest(needs);
   if (!text) {
