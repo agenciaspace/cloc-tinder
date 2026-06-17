@@ -11,6 +11,7 @@
     { "src": "/(.*)", "dest": "/server.js" }
   ],
   "crons": [
-    { "path": "/api/cron/sync", "schedule": "0 5 * * *" }
+    { "path": "/api/cron/sync", "schedule": "0 5 * * *" },
+    { "path": "/api/cron/digest", "schedule": "0 16 * * *" }
   ]
 }
