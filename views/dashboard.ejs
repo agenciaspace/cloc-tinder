@@ -14,13 +14,18 @@
 </div>
 
 <% const helpCount = (profile && profile.help_categories) ? profile.help_categories.length : 0; %>
-<% if (helpCount < 3) { %>
+<% const hasPhoto = !!(profile && profile.photo_url); %>
+<% if (!hasPhoto || helpCount < 3) { %>
   <a href="/profile/edit" class="complete-banner">
     <span>⚠️</span>
     <div>
       <strong>Complete seu perfil para receber matches.</strong>
-      Indique <strong>pelo menos 3 áreas</strong> em que você pode ajudar
-      (<%= helpCount %>/3) — assim a gente te conecta às necessidades certas.
+      <% if (!hasPhoto) { %>
+        Adicione uma <strong>foto de perfil</strong> — deixa o CLOC-Tinder mais pessoal e gera mais confiança.
+      <% } %>
+      <% if (helpCount < 3) { %>
+        Indique <strong>pelo menos 3 áreas</strong> em que você pode ajudar (<%= helpCount %>/3) — assim a gente te conecta às necessidades certas.
+      <% } %>
     </div>
     <span class="complete-cta">Editar →</span>
   </a>
