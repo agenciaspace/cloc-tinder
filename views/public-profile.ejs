@@ -47,6 +47,7 @@
     <% if (comps.length) { %>
       <div class="profile-section">
         <h3>🧭 Competências na mandala da CLOC</h3>
+        <%- include('partials/mandala-wheel', { selectedKeys: profile.cloc_competencies }) %>
         <div class="mandala-chips">
           <% comps.forEach(c => { %>
             <span class="mandala-chip" title="<%= c.desc %>">

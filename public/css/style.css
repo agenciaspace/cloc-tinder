@@ -1045,3 +1045,13 @@ a { color: var(--coral-deep); }
 }
 .mandala-chip strong { font-size: 13.5px; color: var(--coral-deep); font-weight: 700; }
 .mandala-chip em { font-size: 10.5px; color: var(--ink-faint); font-style: normal; text-transform: uppercase; letter-spacing: .4px; }
+
+/* Roda da mandala (SVG) no perfil */
+.mandala-wheel { width: 100%; max-width: 560px; height: auto; display: block; margin: 4px auto 14px; }
+.mw-seg { stroke: #fff; stroke-width: 2.5; transition: .2s; }
+.mw-seg.off { fill: #EFE8DE; }
+.mw-seg.on { fill: var(--coral); stroke: var(--coral-deep); }
+.mw-label { font-family: 'Hanken Grotesk', sans-serif; font-size: 12px; font-weight: 600; fill: #A39C8E; }
+.mw-label.on { fill: var(--coral-deep); font-weight: 800; }
+.mw-center { fill: #fff; stroke: #F0E5DA; stroke-width: 2; }
+.mw-center-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 16px; fill: var(--coral-deep); }

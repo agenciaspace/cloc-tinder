@@ -1,0 +1,49 @@
+<%
+  /* Roda da mandala (CLOC Core 12) em SVG.
+     Espera no escopo:
+       - clocMandala : array das 12 competências (global de view)
+       - selectedKeys: array de keys destacadas (passado no include) */
+  var all = (typeof clocMandala !== 'undefined' && clocMandala) ? clocMandala : [];
+  var sel = new Set(selectedKeys || []);
+  var cx = 380, cy = 270, ir = 80, orBase = 150, orSel = 162, labelR = 178;
+
+  function polar(r, deg) {
+    var a = (deg - 90) * Math.PI / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  }
+  function pt(p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }
+  function wedge(i, outer) {
+    var a0 = i * 30, a1 = (i + 1) * 30;
+    var os = polar(outer, a0), oe = polar(outer, a1);
+    var isn = polar(ir, a1), ien = polar(ir, a0);
+    return 'M ' + pt(os) + ' A ' + outer + ' ' + outer + ' 0 0 1 ' + pt(oe) +
+           ' L ' + pt(isn) + ' A ' + ir + ' ' + ir + ' 0 0 0 ' + pt(ien) + ' Z';
+  }
+  // Quebra nomes longos em até 2 linhas equilibradas (só para os rótulos).
+  function splitLabel(name) {
+    var words = name.split(' ');
+    if (name.length <= 16 || words.length < 2) return [name];
+    var l1 = '', l2 = '';
+    for (var k = 0; k < words.length; k++) {
+      if (l1.length < name.length / 2) l1 += (l1 ? ' ' : '') + words[k];
+      else l2 += (l2 ? ' ' : '') + words[k];
+    }
+    return [l1, l2];
+  }
+%>
+<svg class="mandala-wheel" viewBox="0 0 760 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mandala CLOC Core 12 com as competências destacadas">
+  <% all.forEach(function (c, i) { var on = sel.has(c.key); %>
+    <path d="<%= wedge(i, on ? orSel : orBase) %>" class="mw-seg <%= on ? 'on' : 'off' %>"></path>
+  <% }) %>
+  <% all.forEach(function (c, i) {
+       var on = sel.has(c.key);
+       var p = polar(labelR, i * 30 + 15), lx = p[0], ly = p[1];
+       var anchor = lx > cx + 8 ? 'start' : (lx < cx - 8 ? 'end' : 'middle');
+       var lines = splitLabel(c.nome);
+       var dy0 = lines.length > 1 ? -1 : 4;
+  %>
+    <text x="<%= lx.toFixed(1) %>" y="<%= ly.toFixed(1) %>" text-anchor="<%= anchor %>" class="mw-label <%= on ? 'on' : 'off' %>"><% lines.forEach(function (ln, li) { %><tspan x="<%= lx.toFixed(1) %>" dy="<%= li === 0 ? dy0 : 13 %>"><%= ln %></tspan><% }) %></text>
+  <% }) %>
+  <circle cx="<%= cx %>" cy="<%= cy %>" r="<%= ir - 8 %>" class="mw-center"></circle>
+  <text x="<%= cx %>" y="<%= cy - 6 %>" text-anchor="middle" class="mw-center-title"><tspan x="<%= cx %>">CLOC</tspan><tspan x="<%= cx %>" dy="17">Core 12</tspan></text>
+</svg>

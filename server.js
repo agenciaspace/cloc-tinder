@@ -44,6 +44,7 @@ app.use(async (req, res, next) => {
   };
   res.locals.socialUrl = socials.socialUrl;
   res.locals.clocCompetencies = mandala.competenciesFor;
+  res.locals.clocMandala = mandala.COMPETENCIES;
   res.locals.waLink = (p) => {
     const c = phoneUtil.canonical(p) || phoneUtil.digitsOnly(p);
     return c ? 'https://wa.me/' + c : '#';
