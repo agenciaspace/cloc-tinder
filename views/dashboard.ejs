@@ -49,7 +49,15 @@
     <% if (profile) { %>
       <p><strong>Habilidades:</strong> <%= profile.skills && profile.skills.length ? profile.skills.join(', ') : 'Nenhuma cadastrada' %></p>
       <p><strong>Categorias:</strong> <%= profile.help_categories && profile.help_categories.length ? profile.help_categories.join(', ') : 'Nenhuma' %></p>
-      <p>
+      <% const myComps = clocCompetencies(profile.cloc_competencies); %>
+      <% if (myComps.length) { %>
+        <p><strong>🧭 Mandala da CLOC:</strong></p>
+        <div class="tags" style="margin-top:6px;">
+          <% myComps.forEach(c => { %><span class="tag tag-coral"><%= c.nome %></span><% }) %>
+        </div>
+        <a href="/mandala" class="mandala-edit-link">ajustar →</a>
+      <% } %>
+      <p style="margin-top:12px;">
         <span class="tag <%= profile.can_help ? 'tag-green' : 'tag-gray' %>">
           <%= profile.can_help ? '✅ Quero ajudar' : '❌ Não posso ajudar agora' %>
         </span>

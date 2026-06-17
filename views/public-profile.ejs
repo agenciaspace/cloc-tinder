@@ -43,6 +43,21 @@
       </div>
     <% } %>
 
+    <% const comps = clocCompetencies(profile.cloc_competencies); %>
+    <% if (comps.length) { %>
+      <div class="profile-section">
+        <h3>🧭 Competências na mandala da CLOC</h3>
+        <div class="mandala-chips">
+          <% comps.forEach(c => { %>
+            <span class="mandala-chip" title="<%= c.desc %>">
+              <strong><%= c.nome %></strong>
+              <em><%= c.en %></em>
+            </span>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
     <a href="/needs" class="btn btn-primary">Ver Necessidades</a>
   </div>
 </div>

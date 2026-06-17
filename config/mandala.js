@@ -97,4 +97,15 @@ function suggestKeys(text) {
   return scored.map((s) => s.key);
 }
 
-module.exports = { COMPETENCIES, suggestKeys, normalize };
+// Mapa key -> competência, para resolver rótulos salvos no perfil.
+const BY_KEY = COMPETENCIES.reduce((m, c) => { m[c.key] = c; return m; }, {});
+
+// Recebe as keys salvas e devolve as competências completas (na ordem da
+// mandala), ignorando keys desconhecidas. Útil para exibir nos perfis.
+function competenciesFor(keys) {
+  if (!Array.isArray(keys)) return [];
+  const set = new Set(keys);
+  return COMPETENCIES.filter((c) => set.has(c.key));
+}
+
+module.exports = { COMPETENCIES, BY_KEY, suggestKeys, normalize, competenciesFor };

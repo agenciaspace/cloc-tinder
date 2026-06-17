@@ -8,6 +8,7 @@ const socials = require('./services/socials');
 const phoneUtil = require('./services/phone');
 const db = require('./models/db');
 const whatsapp = require('./services/whatsapp');
+const mandala = require('./config/mandala');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -42,6 +43,7 @@ app.use(async (req, res, next) => {
     isConfigured: waConfig.isConfigured,
   };
   res.locals.socialUrl = socials.socialUrl;
+  res.locals.clocCompetencies = mandala.competenciesFor;
   res.locals.waLink = (p) => {
     const c = phoneUtil.canonical(p) || phoneUtil.digitsOnly(p);
     return c ? 'https://wa.me/' + c : '#';
