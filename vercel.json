@@ -10,8 +10,18 @@
   "routes": [
     { "src": "/(.*)", "dest": "/server.js" }
   ],
-  "crons": [
-    { "path": "/api/cron/sync", "schedule": "0 5 * * *" },
-    { "path": "/api/cron/digest", "schedule": "0 16 * * *" }
+  "_comment_crons": [
+    "Os dois crons foram removidos em 05/08/2026: o grupo CLOC Brasil - Bate papo",
+    "(120363426243605087@g.us) deixou de existir — /group/info devolve 0",
+    "participantes e a conta não é mais membro. O digest continuava saindo todo",
+    "dia às 13h BRT para um grupo que não existe mais, e o sync de membros não",
+    "tinha o que sincronizar. O site segue no ar; só o tráfego automático de",
+    "WhatsApp parou.",
+    "Para religar (grupo novo): repor o bloco abaixo e atualizar o JID do grupo",
+    "nas envs do projeto na Vercel.",
+    "  \"crons\": [",
+    "    { \"path\": \"/api/cron/sync\",   \"schedule\": \"0 5 * * *\" },",
+    "    { \"path\": \"/api/cron/digest\", \"schedule\": \"0 16 * * *\" }",
+    "  ]"
   ]
 }
